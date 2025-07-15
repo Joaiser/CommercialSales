@@ -4,7 +4,8 @@
 export function initRouter() {
     // Escuchamos cuando el hash de la URL cambia (usuario pulsa atrás o adelante, o cambia manualmente)
     window.addEventListener('hashchange', () => {
-        // Obtiene la parte de la URL después del '#' (hash) sin el símbolo '#'
+        // Obtiene la parte de la URL después del '#' con slice(1), que quita el hash. Entonces, obtenemos, la url quitando el hash (hash) sin el símbolo '#'
+        // El hash(#) no se envia al servidor, con lo cual, el servidor no recibe nada a partir del #, solo lo anterior, por lo que tenemos una SPA
         // Por ejemplo, para URL: https://example.com/#/123, path será "/123"
         const path = window.location.hash.slice(1);
 
