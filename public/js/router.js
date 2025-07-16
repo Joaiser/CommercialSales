@@ -15,7 +15,11 @@ export function initRouter() {
 
     // Al cargar la página por primera vez, también renderizamos la vista según el hash actual
     const initialPath = window.location.hash.slice(1); // Si no hay hash, será cadena vacía
-    handleRoute(initialPath || '/'); // Si no hay hash, carga la ruta raíz '/'
+    if (initialPath) {
+        handleRoute(initialPath);
+    } else {
+        handleRoute('/');  // O la ruta por defecto que quieras
+    }
 }
 
 // Función para cambiar la ruta navegando a una nueva vista en la SPA
@@ -25,10 +29,23 @@ export function navigateTo(path) {
     window.location.hash = path;
 }
 
+let isNavigating = false;
+
 // Función principal que carga y renderiza la vista adecuada según la ruta
 export async function handleRoute(path) {
+    console.log('handleRoute path:', path);
+
     const root = document.querySelector('#sales-root');
+
+    // Ignoramos rutas que no vienen del hash (por seguridad)
+    if (!path.startsWith('/') && path !== '') {
+        console.warn('Ruta inválida ignorada:', path);
+        return;
+    }
+
+    isNavigating = true;
     root.innerHTML = '<p>Cargando...</p>'; // Mensaje mientras carga
+    await new Promise(resolve => setTimeout(resolve, 150))
 
     // Si la ruta es la raíz ('' o '/'), mostramos la lista de comerciales
     if (path === '/' || path === '') {
@@ -41,6 +58,8 @@ export async function handleRoute(path) {
 
         // Renderizamos la lista, pasando la función que navega a detalle al hacer clic
         renderList(root, comerciales, id => navigateTo(`/${id}`));
+        isNavigating = false;
+        return;
 
     } else if (path.match(/^\/\d+$/)) { // Si la ruta es /{id} donde id es número
         const id = path.split('/').pop();
@@ -54,9 +73,12 @@ export async function handleRoute(path) {
 
         // Renderizamos la vista detalle con botón para volver (que navegará a '/')
         renderDetail(root, comercial, () => navigateTo('/'));
+        isNavigating = false;
+        return;
 
-    } else {
-        // Ruta no reconocida => mostramos mensaje de error
-        root.innerHTML = '<p>Página no encontrada</p>';
+    }
+
+    if (!isNavigating) {
+        root.innerHTML = '<p>Página no encontrada</p>'
     }
 }
