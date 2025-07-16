@@ -4,8 +4,8 @@ export async function fetchComerciales() {
     return res.json();
 }
 
-export async function fetchPedidosPorComercial(idComercial) {
-    const res = await fetch(`/module/zonacomerciales/pedidos?id=${idComercial}`);
-    if (!res.ok) throw new Error('Error fetching pedidos');
+export async function fetchPorcentajeClientes(idComercial) {
+    const res = await fetch(`/module/zonacomerciales/datos?sacarPorcentajeClientesDelComercial=${idComercial}`);
+    if (!res.ok) throw new Error('Error fetching porcentaje de clientes');
     return res.json();
 }

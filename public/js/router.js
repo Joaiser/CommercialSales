@@ -45,17 +45,15 @@ export async function handleRoute(path) {
     } else if (path.match(/^\/\d+$/)) { // Si la ruta es /{id} donde id es número
         const id = path.split('/').pop();
 
-        const { fetchComerciales, fetchPedidosPorComercial } = await import('./api/api.js');
+        const { fetchComerciales } = await import('./api/api.js');
         const { renderDetail } = await import('./views/detailView.js');
 
-        // Obtenemos la info del comercial y sus pedidos
+        // Obtenemos la info del comercial
         const comerciales = await fetchComerciales();
         const comercial = comerciales.find(c => c.id_customer == id);
 
-        const pedidos = await fetchPedidosPorComercial(id);
-
         // Renderizamos la vista detalle con botón para volver (que navegará a '/')
-        renderDetail(root, comercial, pedidos, () => navigateTo('/'));
+        renderDetail(root, comercial, () => navigateTo('/'));
 
     } else {
         // Ruta no reconocida => mostramos mensaje de error
