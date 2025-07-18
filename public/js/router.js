@@ -76,7 +76,20 @@ export async function handleRoute(path) {
         isNavigating = false;
         return;
 
+    } else if (path.match(/^\/productos\/\d+$/)) {
+        const clienteId = path.split('/').pop();
+
+        const { fetchProductosConPorcentaje } = await import('./api/api.js');
+        const { renderProductosConPorcentaje } = await import('./views/productListView.js');
+
+        const productos = await fetchProductosConPorcentaje(clienteId);
+        renderProductosConPorcentaje(root, productos, () => navigateTo(`/`));
+
+        isNavigating = false;
+        return;
     }
+
+
 
     if (!isNavigating) {
         root.innerHTML = '<p>Página no encontrada</p>'
