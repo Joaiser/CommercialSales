@@ -11,9 +11,8 @@ export function renderProductosConPorcentaje(root, productos, onBack) {
           <table style="width:100%; border-collapse: collapse; text-align: center;" border="1" cellspacing="0" cellpadding="5">
             <thead>
               <tr>
-                <th>ID Producto</th>
-                <th>Nombre</th>
-                <th>Porcentaje Especial</th>
+                 <th style="text-align: center;">ID Producto</th>
+                 <th style="text-align: center;">Porcentaje Especial</th>
               </tr>
             </thead>
             <tbody>
@@ -22,7 +21,6 @@ export function renderProductosConPorcentaje(root, productos, onBack) {
         return `
                   <tr>
                     <td>${p.id_product}</td>
-                    <td>${p.nombre || '-'}</td>
                     <td>${p.porcentaje}%</td>
                   </tr>`;
       }).join('')}

@@ -21,3 +21,23 @@ export async function fetchProductosConPorcentaje(clienteId) {
     console.log('[fetchProductosConPorcentaje] response:', data);
     return data;
 }
+
+
+export async function createComercial(comercial) {
+    const res = await fetch('/module/zonacomerciales/create', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(comercial),
+    });
+
+    if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Error al crear comercial');
+    }
+
+    return res.json();
+}
+
+
