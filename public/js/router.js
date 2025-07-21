@@ -87,7 +87,24 @@ export async function handleRoute(path) {
 
         isNavigating = false;
         return;
+    } else if (path === '/create') {
+        const { fetchTodosClientes } = await import('./api/api.js');
+        const { renderCreate } = await import('./views/createCommercialModal.js');
+
+        const clientes = await fetchTodosClientes();
+
+        // Aquí deberías pasar el contenedor donde poner el modal, por ejemplo body o un div modal-root
+        renderCreate(clientes, async (data) => {
+            const { createComercial } = await import('./api/api.js');
+            await createComercial(data);
+            // tras crear, navegar a lista
+            navigateTo('/');
+        });
+
+        isNavigating = false;
+        return;
     }
+
 
 
 

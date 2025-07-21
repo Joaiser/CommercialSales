@@ -1,8 +1,8 @@
-export function renderCreate(_, onCreate) {
+export function renderCreate(clientes, onCreate) {
   // Crear un div temporal para insertar el modal
   const wrapper = document.createElement('div');
   wrapper.innerHTML = `
-    <div class="modal" id="crearComercialModal" tabindex="-1" aria-labelledby="crearComercialModalLabel" aria-hidden="true" style="display: none;">
+    <div class="modal" id="crearComercialModal" tabindex="-1" aria-labelledby="crearComercialModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
@@ -11,9 +11,11 @@ export function renderCreate(_, onCreate) {
           </div>
           <form id="create-comercial-form" class="modal-body">
             <div class="mb-3">
-             <label for="inputIdComercial" class="form-label">ID Comercial</label>
-              <input type="number" class="form-control" id="inputIdComercial" name="id_comercial" required />
-             </div>
+              <label for="selectCliente" class="form-label">Selecciona Cliente</label>
+              <select id="selectCliente" name="id_comercial" class="form-select" required>
+                ${clientes.map(c => `<option value="${c.id_customer}">${c.firstname} ${c.lastname}</option>`).join('')}
+              </select>
+            </div>
             <div class="mb-3">
               <label for="inputPorcentaje" class="form-label">Porcentaje General (%)</label>
               <input type="number" step="0.01" class="form-control" id="inputPorcentaje" name="porcentaje_general" required />
@@ -47,7 +49,6 @@ export function renderCreate(_, onCreate) {
       id_comercial: Number(formData.get('id_comercial')),
       porcentaje_general: parseFloat(formData.get('porcentaje_general')),
     };
-
 
     try {
       await onCreate(data);

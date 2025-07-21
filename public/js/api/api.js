@@ -40,4 +40,16 @@ export async function createComercial(comercial) {
     return res.json();
 }
 
+export async function fetchTodosClientes() {
+    const res = await fetch('/module/zonacomerciales/datos?sacarTodosLosClientes=1');
+    if (!res.ok) throw new Error('Error fetching clientes');
+    const data = await res.json();
+    // Aquí podrías filtrar para que solo devuelva lo que quieres, si quieres
+    return data.map(cliente => ({
+        id_customer: cliente.id_customer,
+        firstname: cliente.firstname,
+        lastname: cliente.lastname,
+    }));
+}
+
 

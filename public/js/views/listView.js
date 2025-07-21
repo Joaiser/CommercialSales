@@ -1,3 +1,5 @@
+import { navigateTo } from '../router.js';
+
 export function renderList(root, comerciales, onVerMas) {
   root.innerHTML = `
     <!-- Botón para abrir modal -->
@@ -30,7 +32,6 @@ export function renderList(root, comerciales, onVerMas) {
       </tbody>
     </table>
 
-    <!-- Aquí agregamos un contenedor para el modal dinámico -->
     <div id="modal-root"></div>
   `;
 
@@ -39,25 +40,9 @@ export function renderList(root, comerciales, onVerMas) {
     btn.addEventListener('click', () => onVerMas(btn.dataset.id));
   });
 
-  // Listener para abrir modal y cargar formulario dinámicamente
+  // Listener para abrir modal navegando a la ruta /create
   const btnCrear = root.querySelector('#btn-crear-comercial');
-  btnCrear.addEventListener('click', async () => {
-    const { renderCreate } = await import('./createCommercialView.js');
-    const { createComercial, fetchComerciales } = await import('../api/api.js')
-
-    // Contenedor para el modal
-    const modalRoot = document.getElementById('modal-root');
-
-    // Función que maneja la creación y refresco
-    const onCreate = async (data) => {
-      await createComercial(data);
-      //hay que ver como hacemos lo del id_comercial, porque en la bd es auto_incr
-      // Refrescar lista tras crear
-      const updated = await fetchComerciales();
-      renderList(root, updated, onVerMas);
-    };
-
-    // Renderizamos y mostramos el modal dinámicamente
-    renderCreate(modalRoot, onCreate);
+  btnCrear.addEventListener('click', () => {
+    navigateTo('/create');
   });
 }
