@@ -78,16 +78,22 @@ export function renderCreate(clientes, onCreate) {
     };
 
     try {
-      await onCreate(data);
-      msg.textContent = 'Comercial creado con éxito.';
-      msg.classList.remove('text-danger');
-      msg.classList.add('text-success');
+      const response = await onCreate(data);
 
-      setTimeout(() => {
-        modal.hide();
-        msg.textContent = '';
-        window.location.hash = '/';
-      }, 1500);
+      if (response.success) {
+        msg.textContent = 'Comercial creado con éxito.';
+        msg.classList.remove('text-danger');
+        msg.classList.add('text-success');
+
+        setTimeout(() => {
+          modal.hide();
+          msg.textContent = '';
+          window.location.hash = '/';
+        }, 1500);
+      } else {
+        throw new Error("El servidor no confirmó la creación.");
+      }
+
     } catch (error) {
       msg.textContent = 'Error al crear comercial: ' + error.message;
       msg.classList.remove('text-success');

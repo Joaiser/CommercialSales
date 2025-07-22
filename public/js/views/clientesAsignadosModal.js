@@ -1,17 +1,15 @@
-import { fetchTodosClientes } from "../api/api.js";
+import { fetchTodosClientes, asignarPorcentajeCliente } from "../api/api.js";
 
 export async function renderClientesAsignados(idComercial) {
   const wrapper = document.createElement('div');
   wrapper.innerHTML = `
 <div class="modal fade" id="clientesAsignadosModal" tabindex="-1" aria-labelledby="clientesAsignadosModalLabel" aria-hidden="true">
   <style>
-    /* Limitar altura del body y scroll propio */
     #clientesAsignadosModal .modal-body {
-      max-height: 400px;    /* Altura máxima, ajusta a tu gusto */
-      overflow-y: auto;     /* Scroll vertical */
-      padding-right: 10px;  /* Evitar que el scroll tape contenido */
+      max-height: 400px;
+      overflow-y: auto;
+      padding-right: 10px;
     }
-    /* Opcional: mejora visual scrollbar para Webkit */
     #clientesAsignadosModal .modal-body::-webkit-scrollbar {
       width: 8px;
     }
@@ -27,18 +25,16 @@ export async function renderClientesAsignados(idComercial) {
         <h5 class="modal-title">Clientes asignados al comercial ID ${idComercial}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
-            <div class="modal-body">
+      <div class="modal-body">
         <input type="text" id="buscadorClientes" class="form-control mb-3" placeholder="Buscar cliente por nombre o apellido..." />
         <div id="clientesAsignadosLista">
           <p>Cargando clientes...</p>
         </div>
       </div>
-
     </div>
   </div>
 </div>
 `;
-
 
   const modalEl = wrapper.firstElementChild;
   document.body.appendChild(modalEl);
@@ -59,11 +55,43 @@ export async function renderClientesAsignados(idComercial) {
         return;
       }
 
-      listaContainer.innerHTML = `<ul class="list-group">${filtrados.map(c =>
-        `<li class="list-group-item">${c.firstname} ${c.lastname} (ID: ${c.id_customer})</li>`).join('')}</ul>`;
+      listaContainer.innerHTML = `
+      <ul class="list-group">
+        ${filtrados.map(c => `
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>${c.firstname} ${c.lastname} (ID: ${c.id_customer})</div>
+            <div class="d-flex align-items-center">
+              <input type="number" class="form-control form-control-sm me-2" placeholder="% comisión" min="0" max="100" style="width: 80px;" id="porcentaje-${c.id_customer}" />
+              <button class="btn btn-primary btn-sm" data-id="${c.id_customer}">Asignar</button>
+            </div>
+          </li>
+        `).join('')}
+      </ul>`;
+
+      // Listeners para botones asignar %
+      listaContainer.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const idCliente = btn.dataset.id;
+          const input = modalEl.querySelector(`#porcentaje-${idCliente}`);
+          const porcentaje = Number(input.value);
+
+          if (isNaN(porcentaje) || porcentaje < 0 || porcentaje > 100) {
+            alert("Introduce un porcentaje válido (0-100)");
+            return;
+          }
+
+          try {
+            await asignarPorcentajeCliente(idCliente, porcentaje);
+            alert(`Porcentaje asignado correctamente al cliente ${idCliente}`);
+          } catch (error) {
+            console.error("Error asignando porcentaje:", error);
+            alert("Error al asignar porcentaje: " + error.message);
+          }
+        });
+      });
     }
 
-    renderLista(clientesDelComercial); // render inicial
+    renderLista(clientesDelComercial);
 
     inputBuscador.addEventListener('input', e => {
       const query = e.target.value.toLowerCase().trim();

@@ -36,31 +36,38 @@ export async function fetchProductosConPorcentaje(clienteId) {
 }
 
 
-export async function handleCreateComercial(data) {
-    // data: { id_comercial: Number, porcentaje_general: Number }
-    // Aquí conviertes los campos a lo que espera la API: id_customer y porcentaje
+export async function handleCreateComercial(data, method = 'POST') {
     const payload = {
         id_customer: data.id_comercial,
         porcentaje: data.porcentaje_general,
+        addcomercial: 1
     };
 
+    const formBody = new URLSearchParams(payload).toString();
+
     const res = await fetch('/module/zonacomerciales/datos', {
-        method: 'POST',
+        method,
         headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: JSON.stringify(payload),
+        body: formBody
     });
 
-    if (!res.ok) {
-        // Opcional: puedes sacar el texto del error para más info
-        const errorText = await res.text();
-        throw new Error(`Error al crear comercial: ${res.status} - ${errorText}`);
+    let responseData;
+
+    try {
+        responseData = await res.json(); // intenta parsear el JSON, aunque sea 500
+    } catch (err) {
+        throw new Error(`Respuesta no válida del servidor: ${err.message}`);
     }
 
-    const result = await res.json(); // o res.text() dependiendo del backend
-    return result;
+    if (!res.ok && !responseData?.success) {
+        throw new Error(`Error al crear comercial: ${res.status}`);
+    }
+
+    return responseData;
 }
+
 
 
 export async function fetchTodosClientes() {
@@ -74,6 +81,29 @@ export async function fetchTodosClientes() {
         lastname: cliente.lastname,
         id_comercial: cliente.id_comercial
     }));
+}
+
+
+export async function asignarPorcentajeCliente(idCliente, porcentaje) {
+    const params = new URLSearchParams();
+    params.append('id_customer', idCliente);
+    params.append('porcentaje', porcentaje);
+    params.append('addcomercial', 1);
+
+    const res = await fetch('/api/asignar_porcentaje.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: params.toString(),
+        credentials: 'include',
+    });
+
+    if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Error asignando porcentaje');
+    }
+    return await res.json();
 }
 
 
