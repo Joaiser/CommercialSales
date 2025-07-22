@@ -11,12 +11,12 @@ export function renderList(root, comerciales, onVerMas) {
     </button>
 
     <!-- Tabla con la lista de comerciales -->
-    <table border="1" cellspacing="0" cellpadding="5" style="width:100%; border-collapse: collapse; text-align: center;">
-      <thead>
+    <table class="table table-striped table-bordered table-hover text-center">
+      <thead class="table-dark">
         <tr>
-          <th style="text-align: center;">Comercial ID</th>
-          <th style="text-align: center;">Porcentaje</th>
-          <th style="text-align: center;">Acciones</th>
+          <th>Comercial ID</th>
+          <th>Porcentaje</th>
+          <th>Acciones</th>
         </tr>
       </thead>
       <tbody>
