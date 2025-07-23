@@ -82,28 +82,45 @@ export async function fetchTodosClientes() {
         id_comercial: cliente.id_comercial
     }));
 }
-
-
 export async function asignarPorcentajeCliente(idCliente, porcentaje) {
     const params = new URLSearchParams();
     params.append('id_customer', idCliente);
     params.append('porcentaje', porcentaje);
-    params.append('addcomercial', 1);
+    params.append('addcliente', 1);
 
-    const res = await fetch('/api/asignar_porcentaje.php', {
+    const res = await fetch('/module/zonacomerciales/datos', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: params.toString(),
         credentials: 'include',
     });
 
-    if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || 'Error asignando porcentaje');
+    const text = await res.text();
+
+    // Detectar si parece JSON (empieza por { o [)
+    if (!text.trim().startsWith('{') && !text.trim().startsWith('[')) {
+        return {
+            success: false,
+            error: `Respuesta no JSON del servidor: ${text.substring(0, 200)}...`, // corta para no saturar
+        };
     }
-    return await res.json();
+
+    try {
+        const data = JSON.parse(text);
+
+        if (!res.ok) {
+            return {
+                success: false,
+                error: data.message || `Error HTTP ${res.status}: respuesta inesperada`,
+            };
+        }
+
+        return data;
+    } catch {
+        return {
+            success: false,
+            error: `Error al parsear JSON: ${text.substring(0, 200)}...`,
+        };
+    }
+
 }
-
-

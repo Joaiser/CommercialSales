@@ -27,6 +27,7 @@ export async function renderClientesAsignados(idComercial) {
       </div>
       <div class="modal-body">
         <input type="text" id="buscadorClientes" class="form-control mb-3" placeholder="Buscar cliente por nombre o apellido..." />
+        <div id="mensajeEstado"></div>
         <div id="clientesAsignadosLista">
           <p>Cargando clientes...</p>
         </div>
@@ -41,6 +42,29 @@ export async function renderClientesAsignados(idComercial) {
 
   const modal = new bootstrap.Modal(modalEl);
   modal.show();
+
+  const mensajeEstado = modalEl.querySelector('#mensajeEstado');
+
+  function mostrarMensaje(texto, tipo = 'success') {
+    if (texto.length > 200) {
+      texto = texto.slice(0, 200) + '...';
+    }
+    mensajeEstado.innerHTML = `
+      <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+        ${texto}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+      </div>
+    `;
+    // Quitar mensaje tras x segundos
+    setTimeout(() => {
+      const alert = mensajeEstado.querySelector('.alert');
+      if (alert) {
+        const bsAlert = bootstrap.Alert.getInstance(alert);
+        if (bsAlert) bsAlert.close();
+        else alert.remove();
+      }
+    }, 8000);
+  }
 
   try {
     const todosClientes = await fetchTodosClientes();
@@ -68,7 +92,6 @@ export async function renderClientesAsignados(idComercial) {
         `).join('')}
       </ul>`;
 
-      // Listeners para botones asignar %
       listaContainer.querySelectorAll('button').forEach(btn => {
         btn.addEventListener('click', async () => {
           const idCliente = btn.dataset.id;
@@ -76,16 +99,20 @@ export async function renderClientesAsignados(idComercial) {
           const porcentaje = Number(input.value);
 
           if (isNaN(porcentaje) || porcentaje < 0 || porcentaje > 100) {
-            alert("Introduce un porcentaje válido (0-100)");
+            mostrarMensaje("Introduce un porcentaje válido (0-100)", "danger");
             return;
           }
 
           try {
-            await asignarPorcentajeCliente(idCliente, porcentaje);
-            alert(`Porcentaje asignado correctamente al cliente ${idCliente}`);
+            const result = await asignarPorcentajeCliente(idCliente, porcentaje);
+            if (result.success) {
+              mostrarMensaje(`Porcentaje asignado correctamente al cliente ${idCliente}`, "success");
+            } else {
+              mostrarMensaje(`Error: ${result.error}`, "danger");
+            }
           } catch (error) {
             console.error("Error asignando porcentaje:", error);
-            alert("Error al asignar porcentaje: " + error.message);
+            mostrarMensaje(`Error al asignar porcentaje: ${error.message}`, "danger");
           }
         });
       });

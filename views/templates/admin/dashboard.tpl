@@ -1,6 +1,6 @@
 <div id="commercial-app" class="panel">
-    <h3>Ventas de Comerciales</h3>
-    <div id="sales-root"></div>
+  <h3>Ventas de Comerciales</h3>
+  <div id="sales-root"></div>
 </div>
 
 <!-- Bootstrap CSS -->
