@@ -1,6 +1,5 @@
 // views/detailView.js
 import { fetchPorcentajeClientes } from '../api/api.js';
-import { renderClientesAsignados } from './clientesAsignadosModal.js';
 
 export async function renderDetail(root, comercial, onBack) {
   const datosPorcentaje = await fetchPorcentajeClientes(comercial.id_customer);
@@ -19,7 +18,7 @@ export async function renderDetail(root, comercial, onBack) {
   `;
 
   root.querySelector('#btn-back').addEventListener('click', () => {
-    window.location.hash = `#/${comercial.id_customer}`;
+    window.location.hash = '#/';
   });
 
   root.querySelector('#btn-productos').addEventListener('click', () => {
