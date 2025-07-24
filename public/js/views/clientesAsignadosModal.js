@@ -136,5 +136,12 @@ export async function renderClientesAsignados(idComercial) {
 
   modalEl.addEventListener('hidden.bs.modal', () => {
     modalEl.remove();
+
+    const currentHash = window.location.hash;
+    const newHash = currentHash.replace(/\/asignarPorcentaje$/, '');
+
+    if (newHash !== currentHash) {
+      window.location.hash = newHash;
+    }
   });
 }

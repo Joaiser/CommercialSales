@@ -103,7 +103,19 @@ export async function handleRoute(path) {
 
     isNavigating = false;
     return;
+  } else if (path.match(/^\/\d+\/asignarPorcentaje$/)) {
+    const idComercial = path.split('/')[1];
+
+    const { renderClientesAsignados } = await import('./views/clientesAsignadosModal.js');
+
+    // mostramos el modal
+    await renderClientesAsignados(idComercial);
+
+    // no cambiamos el contenido principal
+    isNavigating = false;
+    return;
   }
+
 
 
 

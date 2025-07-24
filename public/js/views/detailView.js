@@ -18,19 +18,18 @@ export async function renderDetail(root, comercial, onBack) {
     </div>
   `;
 
-  root.querySelector('#btn-back').addEventListener('click', onBack);
+  root.querySelector('#btn-back').addEventListener('click', () => {
+    window.location.hash = `#/${comercial.id_customer}`;
+  });
 
   root.querySelector('#btn-productos').addEventListener('click', () => {
     window.location.hash = `/productos/${idClienteFinal}`;
   });
 
-  root.querySelector('#btn-clientes-asignados').addEventListener('click', async () => {
-    try {
-      await renderClientesAsignados(idClienteFinal);
-    } catch (error) {
-      console.error("Error al cargar clientes asignados:", error);
-    }
+  root.querySelector('#btn-clientes-asignados').addEventListener('click', () => {
+    window.location.hash = `#/${idClienteFinal}/asignarPorcentaje`;
   });
+
 
 
 }
