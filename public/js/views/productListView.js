@@ -1,4 +1,5 @@
 import { showEditPorcentajeModal } from "./modalEditPorcentajeProductos.js";
+import { deleteProductoEspecial } from '../api/api.js';
 
 export function renderProductosConPorcentaje(root, productos, onBack, clienteId, onModify) {
   console.log('[renderProductosConPorcentaje] productos:', productos);
@@ -37,31 +38,33 @@ export function renderProductosConPorcentaje(root, productos, onBack, clienteId,
             <th scope="col" style="padding: 0.75rem; border: 1px solid #dee2e6;">Acción</th>
           </tr>
         </thead>
-        <tbody>
-          ${productos.map(p => `
-            <tr style="border-bottom: 1px solid #dee2e6;">
-              <td style="padding: 0.75rem; border: 1px solid #dee2e6;">${p.id_product}</td>
-              <td style="padding: 0.75rem; border: 1px solid #dee2e6;">${p.porcentaje}%</td>
-              <td style="padding: 0.75rem; border: 1px solid #dee2e6;">
-                <button 
-                  class="btn-modificar" 
-                  data-id="${p.id_product}" 
-                  style="
-                    padding: 0.3rem 0.6rem;
-                    background-color: #0d6efd;
-                    color: white;
-                    border: none;
-                    border-radius: 0.25rem;
-                    cursor: pointer;
-                    font-size: 0.875rem;
-                  "
-                >
-                  Modificar
-                </button>
-              </td>
-            </tr>
-          `).join('')}
-        </tbody>
+      <tbody>
+              ${productos.map(p => `
+                <tr style="border-bottom: 1px solid #dee2e6;">
+                  <td style="padding: 0.75rem; border: 1px solid #dee2e6;">${p.id_product}</td>
+                  <td style="padding: 0.75rem; border: 1px solid #dee2e6;">${p.porcentaje}%</td>
+                  <td style="padding: 0.75rem; border: 1px solid #dee2e6;">
+                    <button 
+                      class="btn-modificar" 
+                      data-id="${p.id_product}" 
+                      style="padding: 0.3rem 0.6rem; background-color: #0d6efd; color: white; border: none; border-radius: 0.25rem; cursor: pointer; font-size: 0.875rem;"
+                    >
+                      Modificar
+                    </button>
+              
+                    <button 
+                      class="btn-eliminar-producto" 
+                      data-id-product="${p.id_product}" 
+                      data-id-attr="${p.id_product_attribute}" 
+                      style="padding: 0.3rem 0.6rem; background-color: #dc3545; color: white; border: none; border-radius: 0.25rem; cursor: pointer; font-size: 0.875rem; margin-left: 0.5rem;"
+                    >
+                      Eliminar
+                    </button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+
       </table>
     `;
 
@@ -125,4 +128,28 @@ export function renderProductosConPorcentaje(root, productos, onBack, clienteId,
       });
     });
   });
+
+  root.querySelectorAll('.btn-eliminar-producto').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const idProduct = Number(btn.dataset.idProduct);
+      const idAttr = Number(btn.dataset.idAttr);
+
+      if (!confirm(`¿Seguro que quieres eliminar el producto ${idProduct} con combinación ${idAttr}?`)) return;
+
+      try {
+        await deleteProductoEspecial({
+          id_product: idProduct,
+          id_product_attribute: idAttr,
+          id_customer: clienteId
+        });
+
+        alert('Producto eliminado correctamente');
+        onBack(); // o recarga dinámica si prefieres
+      } catch (err) {
+        console.error(err);
+        alert('Error al eliminar el producto');
+      }
+    });
+  });
+
 }

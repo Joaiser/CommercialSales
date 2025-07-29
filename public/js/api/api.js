@@ -196,3 +196,23 @@ export async function deleteCliente(idCliente) {
 
   return text;
 }
+export async function deleteProductoEspecial({ id_product, id_product_attribute, id_customer }) {
+  const params = new URLSearchParams();
+  params.append('id_product', id_product);
+  params.append('id_product_attribute', id_product_attribute);
+  params.append('id_customer', id_customer);
+  params.append('deleteProductoCliente', 1); // clave para que el backend lo detecte
+
+  const response = await fetch('/module/zonacomerciales/datos', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: params.toString()
+  });
+
+  const text = await response.text();
+  if (!response.ok || text !== 'deleted') {
+    throw new Error(`Error eliminando producto: ${text}`);
+  }
+
+  return text;
+}
