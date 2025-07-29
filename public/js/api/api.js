@@ -6,12 +6,14 @@ export async function fetchComerciales() {
 
 export async function fetchPorcentajeClientes(idComercial) {
   const res = await fetch(`/module/zonacomerciales/datos?sacarPorcentajeClientesDelComercial=${idComercial}`);
-  const rawText = await res.text();
 
+  console.log('STATUS:', res.status);
+  console.log('HEADERS:', [...res.headers.entries()]);
+
+  const rawText = await res.text();
   console.log('[RAW RESPONSE]', rawText);
 
   if (!rawText) {
-    // Si el backend no devuelve nada, devuelve algo por defecto
     return { id_customer: idComercial, porcentaje: 0 };
   }
 
@@ -22,17 +24,6 @@ export async function fetchPorcentajeClientes(idComercial) {
     console.error('Error al parsear JSON:', rawText);
     throw new Error('La respuesta no es JSON válido: ' + rawText);
   }
-}
-
-
-
-export async function fetchProductosConPorcentaje(clienteId) {
-  console.log('[fetchProductosConPorcentaje] clienteId:', clienteId);
-  const res = await fetch(`/module/zonacomerciales/datos?sacarPorcentajeProductosClientes=${clienteId}`);
-  if (!res.ok) throw new Error('Error fetching productos especiales');
-  const data = await res.json();
-  console.log('[fetchProductosConPorcentaje] response:', data);
-  return data;
 }
 
 
@@ -118,4 +109,19 @@ export async function asignarPorcentajeCliente(idCliente, porcentaje) {
   }
 
   return data;
+}
+
+export async function fetchPorcentajeProductosCliente(idCliente) {
+  const res = await fetch(`/module/zonacomerciales/datos?sacarPorcentajeProductosClientes=${idCliente}`);
+
+  const rawText = await res.text();
+  if (!rawText) return [];
+
+  try {
+    const data = JSON.parse(rawText);
+    return data;
+  } catch (error) {
+    console.error('Error al parsear JSON:', rawText);
+    throw new Error('Respuesta inválida');
+  }
 }
