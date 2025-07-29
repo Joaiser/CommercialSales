@@ -59,6 +59,29 @@ export async function handleCreateComercial(data, method = 'POST') {
   return responseData;
 }
 
+export async function deleteComercial(idComercial) {
+  const formData = new URLSearchParams();
+  formData.append('deleteComercial', idComercial);
+
+  const response = await fetch('/module/zonacomerciales/datos', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: formData.toString(),
+  });
+
+  if (!response.ok) {
+    throw new Error('Error borrando comercial');
+  }
+
+  const data = await response.text();
+  if (data !== 'deleted') {
+    throw new Error('Error borrando comercial: respuesta inesperada');
+  }
+
+  return data;
+}
+
+
 
 
 export async function fetchTodosClientes() {
