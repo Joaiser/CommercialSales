@@ -1,22 +1,27 @@
-import { fetchPorcentajeClientes } from '../api/api.js';
+import { fetchPorcentajeClientes, deleteCliente } from '../api/api.js';
 
 export async function renderDetail(root, comercial, onBack) {
   const datosPorcentaje = await fetchPorcentajeClientes(comercial.id_customer);
 
   let tablaHTML = '';
   const renderFila = (cli) => `
-    <tr>
-      <td>${cli.id_customer}</td>
-      <td>${cli.porcentaje}%</td>
-      <td>
-        <button 
-          class="btn btn-sm btn-info ver-productos" 
-          data-id="${cli.id_customer}">
-          Ver productos con porcentaje
-        </button>
-      </td>
-    </tr>
-  `;
+  <tr data-id="${cli.id_customer}">
+    <td>${cli.id_customer}</td>
+    <td>${cli.porcentaje}%</td>
+    <td>
+      <button 
+        class="btn btn-sm btn-info ver-productos" 
+        data-id="${cli.id_customer}">
+        Ver productos con porcentaje
+      </button>
+      <button 
+        class="btn btn-sm btn-danger borrar-cliente"
+        data-id="${cli.id_customer}">
+        Borrar
+      </button>
+    </td>
+  </tr>
+`;
 
   if (Array.isArray(datosPorcentaje)) {
     tablaHTML = `
@@ -81,4 +86,24 @@ export async function renderDetail(root, comercial, onBack) {
       window.location.hash = `/productos/${idCliente}`;
     });
   });
+
+  // Botones "Borrar"
+  root.querySelectorAll('.borrar-cliente').forEach(boton => {
+    boton.addEventListener('click', async () => {
+      const idCliente = boton.dataset.id;
+      const confirmar = confirm(`¿Seguro que quieres borrar al cliente ${idCliente}?`);
+      if (!confirmar) return;
+
+      try {
+        await deleteCliente(idCliente);
+        console.log('[BORRADO REAL] Cliente a borrar:', idCliente);
+
+        const fila = boton.closest('tr');
+        fila.remove();
+      } catch (err) {
+        alert('Error al borrar el cliente: ' + err.message);
+      }
+    });
+  });
+
 }

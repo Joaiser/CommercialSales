@@ -170,3 +170,29 @@ export async function guardarPorcentajeEspecial({ idProducto, clienteId, porcent
     throw error;
   }
 }
+
+export async function deleteCliente(idCliente) {
+  const formData = new URLSearchParams();
+  formData.append('deleteCliente', idCliente);
+
+  console.log('[deleteCliente] Enviando:', formData.toString());
+
+  const response = await fetch('/module/zonacomerciales/datos', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: formData.toString(),
+  });
+
+  const text = await response.text();
+  console.log('[deleteCliente] Respuesta cruda:', text);
+
+  if (!response.ok) {
+    throw new Error('Error al borrar cliente');
+  }
+
+  if (text !== 'deleted') {
+    throw new Error('Error inesperado al borrar cliente: ' + text);
+  }
+
+  return text;
+}

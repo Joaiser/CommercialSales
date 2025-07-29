@@ -32,7 +32,9 @@ export function renderList(root, comerciales, onVerMas) {
             <button class="btn-crear-informe btn btn-sm btn-success" data-id="${c.id_customer}" style="margin-left: 0.5rem;">
               Crear Informe
             </button>
-            <!-- TODO: Añadir listener para btn-crear-informe y función en api.js para crear informe -->
+            <!-- TODO: Añadir listener para btn-crear-informe y función en api.js para crear informe 
+            Que salga un modal, que tenga dos inputs datetime, uno para entrada y otro para salida del informe(Desde-> hasta)
+             + un boton que ponga descargar informe dentro del modal-->
           </td>
 
           </tr>
