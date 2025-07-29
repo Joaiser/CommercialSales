@@ -26,44 +26,48 @@ export function renderProductosConPorcentaje(root, productos, onBack, clienteId,
           font-family: Arial, sans-serif;
           background-color: white;
       ">
-        <thead style="
-          background-color: #f8f9fa;
-          color: #495057;
-          font-weight: 700;
-          border-bottom: 2px solid #dee2e6;
-        ">
-          <tr>
-            <th scope="col" style="padding: 0.75rem; border: 1px solid #dee2e6;">ID Producto</th>
-            <th scope="col" style="padding: 0.75rem; border: 1px solid #dee2e6;">Porcentaje Especial</th>
-            <th scope="col" style="padding: 0.75rem; border: 1px solid #dee2e6;">Acción</th>
-          </tr>
-        </thead>
-      <tbody>
-              ${productos.map(p => `
-                <tr style="border-bottom: 1px solid #dee2e6;">
-                  <td style="padding: 0.75rem; border: 1px solid #dee2e6;">${p.id_product}</td>
-                  <td style="padding: 0.75rem; border: 1px solid #dee2e6;">${p.porcentaje}%</td>
-                  <td style="padding: 0.75rem; border: 1px solid #dee2e6;">
-                    <button 
-                      class="btn-modificar" 
-                      data-id="${p.id_product}" 
-                      style="padding: 0.3rem 0.6rem; background-color: #0d6efd; color: white; border: none; border-radius: 0.25rem; cursor: pointer; font-size: 0.875rem;"
-                    >
-                      Modificar
-                    </button>
-              
-                    <button 
-                      class="btn-eliminar-producto" 
-                      data-id-product="${p.id_product}" 
-                      data-id-attr="${p.id_product_attribute}" 
-                      style="padding: 0.3rem 0.6rem; background-color: #dc3545; color: white; border: none; border-radius: 0.25rem; cursor: pointer; font-size: 0.875rem; margin-left: 0.5rem;"
-                    >
-                      Eliminar
-                    </button>
-                  </td>
-                </tr>
-              `).join('')}
-            </tbody>
+        <!-- Cambiar <thead> para añadir las nuevas columnas -->
+          <thead style="
+            background-color: #f8f9fa;
+            color: #495057;
+            font-weight: 700;
+            border-bottom: 2px solid #dee2e6;
+          ">
+            <tr>
+              <th scope="col" style="padding: 0.75rem; border: 1px solid #dee2e6;">ID Producto</th>
+              <th scope="col" style="padding: 0.75rem; border: 1px solid #dee2e6;">ID Atributo</th> <!-- Nueva -->
+              <th scope="col" style="padding: 0.75rem; border: 1px solid #dee2e6;">Porcentaje Especial</th>
+              <th scope="col" style="padding: 0.75rem; border: 1px solid #dee2e6;">Acción</th>
+            </tr>
+          </thead>
+     <tbody>
+  ${productos.map(p => `
+    <tr style="border-bottom: 1px solid #dee2e6;">
+      <td style="padding: 0.75rem; border: 1px solid #dee2e6;">${p.id_product}</td>
+      <td style="padding: 0.75rem; border: 1px solid #dee2e6;">${p.id_product_attribute}</td>
+      <td style="padding: 0.75rem; border: 1px solid #dee2e6;">${p.porcentaje}%</td>
+      <td style="padding: 0.75rem; border: 1px solid #dee2e6;">
+        <button 
+          class="btn-modificar" 
+          data-id="${p.id_product}" 
+          style="padding: 0.3rem 0.6rem; background-color: #0d6efd; color: white; border: none; border-radius: 0.25rem; cursor: pointer; font-size: 0.875rem;"
+        >
+          Modificar
+        </button>
+
+        <button 
+          class="btn-eliminar-producto" 
+          data-id-product="${p.id_product}" 
+          data-id-attr="${p.id_product_attribute}" 
+          style="padding: 0.3rem 0.6rem; background-color: #dc3545; color: white; border: none; border-radius: 0.25rem; cursor: pointer; font-size: 0.875rem; margin-left: 0.5rem;"
+        >
+          Eliminar
+        </button>
+      </td>
+    </tr>
+  `).join('')}
+</tbody>
+
 
       </table>
     `;
