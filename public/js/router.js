@@ -79,11 +79,12 @@ export async function handleRoute(path) {
   } else if (path.match(/^\/productos\/\d+$/)) {
     const clienteId = path.split('/').pop();
 
-    const { fetchProductosConPorcentaje } = await import('./api/api.js');
+    const { fetchPorcentajeProductosCliente } = await import('./api/api.js');
     const { renderProductosConPorcentaje } = await import('./views/productListView.js');
 
-    const productos = await fetchProductosConPorcentaje(clienteId);
-    renderProductosConPorcentaje(root, productos, () => navigateTo(`/`));
+    const productos = await fetchPorcentajeProductosCliente(clienteId);
+    renderProductosConPorcentaje(root, productos, () => navigateTo(`/`), clienteId);
+
 
     isNavigating = false;
     return;

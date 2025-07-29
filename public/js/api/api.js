@@ -125,3 +125,25 @@ export async function fetchPorcentajeProductosCliente(idCliente) {
     throw new Error('Respuesta inválida');
   }
 }
+
+export async function guardarPorcentajeEspecial({ idProducto, clienteId, porcentaje }) {
+  try {
+    const response = await fetch('/modules/tu_modulo/ajax/save-porcentaje.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ idProducto, clienteId, porcentaje }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al guardar el porcentaje');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error en guardarPorcentajeEspecial:', error);
+    throw error;
+  }
+}
