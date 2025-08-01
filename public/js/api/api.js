@@ -7,11 +7,11 @@ export async function fetchComerciales() {
 export async function fetchPorcentajeClientes(idComercial) {
   const res = await fetch(`/module/zonacomerciales/datos?sacarPorcentajeClientesDelComercial=${idComercial}`);
 
-  console.log('STATUS:', res.status);
-  console.log('HEADERS:', [...res.headers.entries()]);
+  // console.log('STATUS:', res.status);
+  // console.log('HEADERS:', [...res.headers.entries()]);
 
   const rawText = await res.text();
-  console.log('[RAW RESPONSE]', rawText);
+  // console.log('[RAW RESPONSE]', rawText);
 
   if (!rawText) {
     return { id_customer: idComercial, porcentaje: 0 };
@@ -21,7 +21,7 @@ export async function fetchPorcentajeClientes(idComercial) {
     const data = JSON.parse(rawText);
     return data;
   } catch (error) {
-    console.error('Error al parsear JSON:', rawText);
+    // console.error('Error al parsear JSON:', rawText);
     throw new Error('La respuesta no es JSON válido: ' + rawText);
   }
 }
@@ -138,44 +138,58 @@ export async function fetchPorcentajeProductosCliente(idCliente) {
   const res = await fetch(`/module/zonacomerciales/datos?sacarPorcentajeProductosClientes=${idCliente}`);
 
   const rawText = await res.text();
+
+  console.log('[DEBUG] Respuesta raw del backend:', rawText); // ← LOG clave aquí
+
   if (!rawText) return [];
 
   try {
     const data = JSON.parse(rawText);
     return data;
   } catch (error) {
-    console.error('Error al parsear JSON:', rawText);
+    console.error('[ERROR] Al parsear JSON:', error);
     throw new Error('Respuesta inválida');
   }
 }
 
-export async function guardarPorcentajeEspecial({ idProducto, clienteId, porcentaje }) {
+
+export async function guardarPorcentajeEspecial({ idProductoCliente, porcentaje }) {
   try {
-    const response = await fetch('/modules/tu_modulo/ajax/save-porcentaje.php', {
+    const formData = new FormData();
+    formData.append('modificarPorcentajeProductoAsignadoAunCliente', '1');
+    formData.append('idProductoCliente', idProductoCliente);
+    formData.append('porcentaje', porcentaje);
+
+    const response = await fetch('/module/zonacomerciales/datos', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ idProducto, clienteId, porcentaje }),
+      body: formData,
+      credentials: 'include', // si necesitas enviar cookies de sesión
     });
 
     if (!response.ok) {
-      throw new Error('Error al guardar el porcentaje');
+      const text = await response.text(); // para debug más claro
+      throw new Error(`Error al guardar el porcentaje: ${response.status} - ${text}`);
     }
 
-    const data = await response.json();
-    return data;
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      return await response.json();
+    } else {
+      return await response.text();
+    }
   } catch (error) {
     console.error('Error en guardarPorcentajeEspecial:', error);
     throw error;
   }
 }
 
+
+
 export async function deleteCliente(idCliente) {
   const formData = new URLSearchParams();
   formData.append('deleteCliente', idCliente);
 
-  console.log('[deleteCliente] Enviando:', formData.toString());
+  // console.log('[deleteCliente] Enviando:', formData.toString());
 
   const response = await fetch('/module/zonacomerciales/datos', {
     method: 'POST',
@@ -184,7 +198,7 @@ export async function deleteCliente(idCliente) {
   });
 
   const text = await response.text();
-  console.log('[deleteCliente] Respuesta cruda:', text);
+  // console.log('[deleteCliente] Respuesta cruda:', text);
 
   if (!response.ok) {
     throw new Error('Error al borrar cliente');
@@ -196,12 +210,12 @@ export async function deleteCliente(idCliente) {
 
   return text;
 }
-export async function deleteProductoEspecial({ id_product, id_product_attribute, id_customer }) {
+export async function deleteProductoEspecial({ idProductClienteId }) {
   const params = new URLSearchParams();
-  params.append('id_product', id_product);
-  params.append('id_product_attribute', id_product_attribute);
-  params.append('id_customer', id_customer);
-  params.append('deleteProductoCliente', 1); // clave para que el backend lo detecte
+  params.append('id_productocliente', idProductClienteId);
+  params.append('borrarPorcentajeProductoAsignadoAunCliente', 1); // SOLO UNA VEZ
+  // console.log(idProductClienteId, 'params:', params.toString());
+
 
   const response = await fetch('/module/zonacomerciales/datos', {
     method: 'POST',
@@ -210,9 +224,44 @@ export async function deleteProductoEspecial({ id_product, id_product_attribute,
   });
 
   const text = await response.text();
-  if (!response.ok || text !== 'deleted') {
+  if (!response.ok) {
     throw new Error(`Error eliminando producto: ${text}`);
   }
 
-  return text;
+  try {
+    const json = JSON.parse(text);
+    if (!json.success) throw new Error('No se pudo eliminar');
+    return json;
+  } catch {
+    throw new Error('Respuesta no válida del servidor');
+  }
+}
+
+
+
+export async function crearProductoEspecial({ idProducto, id_product_attribute, id_customer, porcentaje }) {
+  const formData = new FormData();
+  formData.append('crearPorcentajeProductoAsignadoAunCliente', 1);
+  formData.append('idProducto', idProducto);
+  formData.append('id_product_attribute', id_product_attribute);
+  formData.append('id_customer', id_customer);
+  formData.append('porcentaje', porcentaje);
+
+  const response = await fetch('/module/zonacomerciales/datos', {
+    method: 'POST',
+    body: formData,
+    credentials: 'include', // si usas cookies de sesión
+  });
+
+  const text = await response.text();
+
+  try {
+    const data = JSON.parse(text);
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || `Error HTTP ${response.status}`);
+    }
+    return data;
+  } catch {
+    throw new Error(`Respuesta no válida del servidor: ${text}`);
+  }
 }

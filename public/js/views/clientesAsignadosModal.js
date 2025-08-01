@@ -111,7 +111,7 @@ export async function renderClientesAsignados(idComercial) {
               mostrarMensaje(`Error: ${result.error}`, "danger");
             }
           } catch (error) {
-            console.error("Error asignando porcentaje:", error);
+            // console.error("Error asignando porcentaje:", error);
             mostrarMensaje(`Error al asignar porcentaje: ${error.message}`, "danger");
           }
         });

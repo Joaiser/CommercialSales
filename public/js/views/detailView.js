@@ -58,7 +58,20 @@ export async function renderDetail(root, comercial, onBack) {
   }
 
   root.innerHTML = `
-    <button id="btn-back" style="margin-bottom: 1rem;">← Volver</button>
+     <button id="btn-back" style="
+        background-color: #6c757d;
+        border: none;
+        color: white;
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        border-radius: 0.375rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      "
+      onmouseover="this.style.backgroundColor='#5a6268'"
+      onmouseout="this.style.backgroundColor='#6c757d'">
+        ← Volver
+      </button>
     <div class="p-3 border rounded">
       <h3>Detalles del Comercial</h3>
       <p><strong>ID del Comercial:</strong> ${comercial.id_customer}</p>
@@ -96,7 +109,7 @@ export async function renderDetail(root, comercial, onBack) {
 
       try {
         await deleteCliente(idCliente);
-        console.log('[BORRADO REAL] Cliente a borrar:', idCliente);
+        // console.log('[BORRADO REAL] Cliente a borrar:', idCliente);
 
         const fila = boton.closest('tr');
         fila.remove();

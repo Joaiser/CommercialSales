@@ -33,13 +33,13 @@ let isNavigating = false;
 
 // Función principal que carga y renderiza la vista adecuada según la ruta
 export async function handleRoute(path) {
-  console.log('handleRoute path:', path);
+  // console.log('handleRoute path:', path);
 
   const root = document.querySelector('#sales-root');
 
   // Ignoramos rutas que no vienen del hash (por seguridad)
   if (!path.startsWith('/') && path !== '') {
-    console.warn('Ruta inválida ignorada:', path);
+    // console.warn('Ruta inválida ignorada:', path);
     return;
   }
 
@@ -70,21 +70,43 @@ export async function handleRoute(path) {
     // Obtenemos la info del comercial
     const comerciales = await fetchComerciales();
     const comercial = comerciales.find(c => c.id_customer == id);
+    console.log('id buscado:', id);
+    console.log('comerciales:', comerciales);
+    console.log('comercial encontrado:', comercial);
 
-    // Renderizamos la vista detalle con botón para volver (que navegará a '/')
+
+    if (!comercial) {
+      root.innerHTML = `<p style="color: red; padding: 1rem;">No se encontró el comercial con ID ${id}</p>`;
+      isNavigating = false;
+      return;
+    }
+
     renderDetail(root, comercial, () => navigateTo('/'));
     isNavigating = false;
     return;
 
+
   } else if (path.match(/^\/productos\/\d+$/)) {
     const clienteId = path.split('/').pop();
 
-    const { fetchPorcentajeProductosCliente } = await import('./api/api.js');
+    const { fetchPorcentajeProductosCliente, guardarPorcentajeEspecial } = await import('./api/api.js');
     const { renderProductosConPorcentaje } = await import('./views/productListView.js');
-
     const productos = await fetchPorcentajeProductosCliente(clienteId);
-    renderProductosConPorcentaje(root, productos, () => navigateTo(`/`), clienteId);
 
+    const onSave = async (idProducto, nuevoPorcentaje) => {
+      try {
+        await guardarPorcentajeEspecial({
+          idProductoCliente: idProducto,
+          porcentaje: nuevoPorcentaje
+        });
+        alert('Porcentaje guardado correctamente.');
+      } catch (err) {
+        alert('Hubo un error al guardar el porcentaje.');
+      }
+    };
+
+
+    renderProductosConPorcentaje(root, productos, () => navigateTo(`/`), clienteId, onSave);
 
     isNavigating = false;
     return;
