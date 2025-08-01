@@ -185,36 +185,31 @@ export async function guardarPorcentajeEspecial({ idProductoCliente, porcentaje 
 
 
 
-export async function deleteCliente(idCliente) {
-  const formData = new URLSearchParams();
-  formData.append('deleteCliente', idCliente);
+export async function deleteCliente(id_customer) {
+  const formData = new FormData();
+  formData.append('deleteCliente_c', id_customer);
 
-  // console.log('[deleteCliente] Enviando:', formData.toString());
-
-  const response = await fetch('/module/zonacomerciales/datos', {
+  const res = await fetch('/module/zonacomerciales/datos', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: formData.toString(),
+    body: formData
   });
 
-  const text = await response.text();
-  // console.log('[deleteCliente] Respuesta cruda:', text);
+  const text = await res.text();
 
-  if (!response.ok) {
-    throw new Error('Error al borrar cliente');
-  }
-
-  if (text !== 'deleted') {
-    throw new Error('Error inesperado al borrar cliente: ' + text);
+  if (!res.ok || !text.includes('deleted')) {
+    throw new Error('Error al borrar en el backend');
   }
 
   return text;
 }
+
+
+
 export async function deleteProductoEspecial({ idProductClienteId }) {
   const params = new URLSearchParams();
   params.append('id_productocliente', idProductClienteId);
   params.append('borrarPorcentajeProductoAsignadoAunCliente', 1); // SOLO UNA VEZ
-  // console.log(idProductClienteId, 'params:', params.toString());
+  console.log(idProductClienteId, 'params:', params.toString());
 
 
   const response = await fetch('/module/zonacomerciales/datos', {
@@ -265,3 +260,5 @@ export async function crearProductoEspecial({ idProducto, id_product_attribute, 
     throw new Error(`Respuesta no válida del servidor: ${text}`);
   }
 }
+
+

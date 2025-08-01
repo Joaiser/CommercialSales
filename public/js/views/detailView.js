@@ -6,7 +6,7 @@ export async function renderDetail(root, comercial, onBack) {
 
   let tablaHTML = '';
   const renderFila = (cli) => `
-  <tr data-id="${cli.id_customer}">
+  <tr data-id-customer="${cli.id_customer}" ">
     <td>${cli.id_customer}</td>
     <td>${cli.porcentaje}%</td>
     <td>
@@ -101,24 +101,26 @@ export async function renderDetail(root, comercial, onBack) {
     });
   });
 
+
   // Botones "Borrar"
   root.querySelectorAll('.borrar-cliente').forEach(boton => {
     boton.addEventListener('click', async () => {
-      const idCliente = boton.dataset.id;
+      const fila = boton.closest('tr');
+      const idCliente = fila.dataset.idCustomer;
+
       const confirmar = confirm(`¿Seguro que quieres borrar al cliente ${idCliente}?`);
       if (!confirmar) return;
 
       try {
         await deleteCliente(idCliente);
-        // console.log('[BORRADO REAL] Cliente a borrar:', idCliente);
-
-        const fila = boton.closest('tr');
         fila.remove();
+        mostrarMensaje(`Cliente ${idCliente} borrado correctamente`, 'success');
       } catch (err) {
         mostrarMensaje('Error al borrar el cliente: ' + err.message, 'danger');
       }
     });
   });
+
 
 }
 
