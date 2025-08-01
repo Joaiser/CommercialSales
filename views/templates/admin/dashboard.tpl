@@ -1,5 +1,6 @@
 <div id="commercial-app" class="panel">
   <h3>Ventas de Comerciales</h3>
+  <div id="mensajeEstado"></div>
   <div id="sales-root"></div>
 </div>
 

@@ -1,5 +1,5 @@
 // router.js
-
+import { mostrarMensaje } from './utils/mensajes.js';
 // Función para inicializar el router y escuchar cambios en la URL (hash)
 export function initRouter() {
   // Escuchamos cuando el hash de la URL cambia (usuario pulsa atrás o adelante, o cambia manualmente)
@@ -99,9 +99,9 @@ export async function handleRoute(path) {
           idProductoCliente: idProducto,
           porcentaje: nuevoPorcentaje
         });
-        alert('Porcentaje guardado correctamente.');
+        mostrarMensaje('Porcentaje guardado correctamente.');
       } catch (err) {
-        alert('Hubo un error al guardar el porcentaje.');
+        mostrarMensaje('Hubo un error al guardar el porcentaje.', 'danger');
       }
     };
 

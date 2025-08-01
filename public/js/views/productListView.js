@@ -1,5 +1,6 @@
 import { showEditPorcentajeModal } from "./modalEditPorcentajeProductos.js";
 import { deleteProductoEspecial, crearProductoEspecial } from '../api/api.js';
+import { mostrarMensaje } from '../utils/mensajes.js';
 
 export function renderProductosConPorcentaje(root, productos, onBack, clienteId, onSave) {
 
@@ -71,7 +72,7 @@ export function renderProductosConPorcentaje(root, productos, onBack, clienteId,
             producto.porcentaje = nuevoPorcentaje;
             pintarTabla();
           },
-          onCancel: () => alert('Edición cancelada por el usuario')
+          onCancel: () => mostrarMensaje('Edición cancelada por el usuario')
         });
       });
     });
@@ -84,14 +85,14 @@ export function renderProductosConPorcentaje(root, productos, onBack, clienteId,
 
         try {
           await deleteProductoEspecial({ idProductClienteId });
-          alert('Producto eliminado correctamente');
+          mostrarMensaje('Producto eliminado correctamente');
 
           // Eliminar producto del array local y repintar tabla
           productos = productos.filter(p => p.id_productocliente !== idProductClienteId);
           pintarTabla();
 
         } catch (err) {
-          alert('Error al eliminar el producto');
+          mostrarMensaje('Error al eliminar el producto');
         }
       });
     });
@@ -142,7 +143,7 @@ export function renderProductosConPorcentaje(root, productos, onBack, clienteId,
     const porcentaje = parseFloat(root.querySelector('#input-porcentaje').value);
 
     if (!id_product || isNaN(porcentaje)) {
-      alert('Debes ingresar un ID de producto válido y un porcentaje.');
+      mostrarMensaje('Debes ingresar un ID de producto válido y un porcentaje.');
       return;
     }
 
@@ -153,7 +154,7 @@ export function renderProductosConPorcentaje(root, productos, onBack, clienteId,
         id_customer: clienteId,
         porcentaje
       });
-      alert('Producto creado correctamente');
+      mostrarMensaje('Producto creado correctamente');
 
       // Añadir el producto nuevo al array local y repintar tabla
       productos.push({
@@ -165,7 +166,7 @@ export function renderProductosConPorcentaje(root, productos, onBack, clienteId,
       pintarTabla();
 
     } catch (error) {
-      alert('Error al crear producto especial: ' + error.message);
+      mostrarMensaje('Error al crear producto especial: ' + error.message);
     }
   });
 

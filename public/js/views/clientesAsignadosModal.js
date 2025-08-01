@@ -1,4 +1,5 @@
 import { fetchTodosClientes, asignarPorcentajeCliente } from "../api/api.js";
+import { mostrarMensaje } from '../utils/mensajes.js';
 
 export async function renderClientesAsignados(idComercial) {
   const wrapper = document.createElement('div');
@@ -45,27 +46,6 @@ export async function renderClientesAsignados(idComercial) {
 
   const mensajeEstado = modalEl.querySelector('#mensajeEstado');
 
-  function mostrarMensaje(texto, tipo = 'success') {
-    if (texto.length > 200) {
-      texto = texto.slice(0, 200) + '...';
-    }
-    mensajeEstado.innerHTML = `
-      <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
-        ${texto}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-      </div>
-    `;
-    // Quitar mensaje tras x segundos
-    setTimeout(() => {
-      const alert = mensajeEstado.querySelector('.alert');
-      if (alert) {
-        const bsAlert = bootstrap.Alert.getInstance(alert);
-        if (bsAlert) bsAlert.close();
-        else alert.remove();
-      }
-    }, 8000);
-  }
-
   try {
     const todosClientes = await fetchTodosClientes();
     const clientesDelComercial = todosClientes.filter(c => Number(c.id_comercial) === Number(idComercial));
@@ -99,20 +79,19 @@ export async function renderClientesAsignados(idComercial) {
           const porcentaje = Number(input.value);
 
           if (isNaN(porcentaje) || porcentaje < 0 || porcentaje > 100) {
-            mostrarMensaje("Introduce un porcentaje válido (0-100)", "danger");
+            mostrarMensaje("Introduce un porcentaje válido (0-100)", "danger", mensajeEstado);
             return;
           }
 
           try {
             const result = await asignarPorcentajeCliente(idCliente, porcentaje);
             if (result.success) {
-              mostrarMensaje(`Porcentaje asignado correctamente al cliente ${idCliente}`, "success");
+              mostrarMensaje(`Porcentaje asignado correctamente al cliente ${idCliente}`, "success", mensajeEstado);
             } else {
-              mostrarMensaje(`Error: ${result.error}`, "danger");
+              mostrarMensaje(`Error: ${result.error}`, "danger", mensajeEstado);
             }
           } catch (error) {
-            // console.error("Error asignando porcentaje:", error);
-            mostrarMensaje(`Error al asignar porcentaje: ${error.message}`, "danger");
+            mostrarMensaje(`Error al asignar porcentaje: ${error.message}`, "danger", mensajeEstado);
           }
         });
       });

@@ -1,6 +1,6 @@
 import { navigateTo } from '../router.js';
 import { deleteComercial } from '../api/api.js';  // O la ruta correcta a tu api.js
-
+import { mostrarMensaje } from '../utils/mensajes.js';  // Asegúrate de que la ruta es correcta
 
 export function renderList(root, comerciales, onVerMas) {
   root.innerHTML = `
@@ -64,14 +64,14 @@ export function renderList(root, comerciales, onVerMas) {
 
       try {
         const res = await deleteComercial(id);
-        alert('Comercial borrado correctamente');
+        mostrarMensaje('Comercial borrado correctamente');
 
         // Eliminar la fila del DOM directamente
         const fila = btn.closest('tr');
         if (fila) fila.remove();
 
       } catch (err) {
-        alert('Error al borrar el comercial');
+        mostrarMensaje('Error al borrar el comercial', 'danger');
         console.error(err);
       }
     });

@@ -1,5 +1,26 @@
 #sales-root {
-    padding: 1rem;
-    background: #fff;
-    border: 1px solid #eee;
+  padding: 1rem;
+  background: #fff;
+  border: 1px solid #eee;
+}
+
+#mensajeEstado {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1050;
+  /* suficiente para estar por encima de casi todo */
+  max-width: 320px;
+  pointer-events: none;
+  /* para que no interfiera con clicks */
+}
+
+#mensajeEstado .alert {
+  pointer-events: auto;
+  /* permitir cerrar la alerta */
+  margin-bottom: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  opacity: 0.95;
+  cursor: default;
+  transition: opacity 0.3s ease-in-out;
 }

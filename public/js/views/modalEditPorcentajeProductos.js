@@ -1,3 +1,5 @@
+import { mostrarMensaje } from '../utils/mensajes.js';
+
 export function showEditPorcentajeModal({ idProducto, clienteId, porcentajeActual, onSave, onCancel }) {
   const overlay = document.createElement('div');
   overlay.style = `
@@ -41,7 +43,7 @@ export function showEditPorcentajeModal({ idProducto, clienteId, porcentajeActua
   modal.querySelector('#btn-save').onclick = () => {
     const nuevoPorcentaje = Number(modal.querySelector('#input-porcentaje').value);
     if (isNaN(nuevoPorcentaje) || nuevoPorcentaje < 0 || nuevoPorcentaje > 100) {
-      alert('Introduce un porcentaje válido entre 0 y 100.');
+      showMessage('Introduce un porcentaje válido entre 0 y 100.');
       return;
     }
     document.body.removeChild(overlay);

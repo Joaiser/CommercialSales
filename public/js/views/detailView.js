@@ -1,4 +1,5 @@
 import { fetchPorcentajeClientes, deleteCliente } from '../api/api.js';
+import { mostrarMensaje } from '../utils/mensajes.js';
 
 export async function renderDetail(root, comercial, onBack) {
   const datosPorcentaje = await fetchPorcentajeClientes(comercial.id_customer);
@@ -114,7 +115,7 @@ export async function renderDetail(root, comercial, onBack) {
         const fila = boton.closest('tr');
         fila.remove();
       } catch (err) {
-        alert('Error al borrar el cliente: ' + err.message);
+        mostrarMensaje('Error al borrar el cliente: ' + err.message, 'danger');
       }
     });
   });
