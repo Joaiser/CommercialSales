@@ -47,7 +47,7 @@ export async function handleCreateComercial(data, method = 'POST') {
   let responseData;
 
   try {
-    responseData = await res.json(); // intenta parsear el JSON, aunque sea 500
+    responseData = await res.json();
   } catch (err) {
     throw new Error(`Respuesta no válida del servidor: ${err.message}`);
   }
@@ -88,7 +88,6 @@ export async function fetchTodosClientes() {
   const res = await fetch('/module/zonacomerciales/datos?sacarTodosLosClientes=1');
   if (!res.ok) throw new Error('Error fetching clientes');
   const data = await res.json();
-  // Aquí podrías filtrar para que solo devuelva lo que quieres, si quieres
   return data.map(cliente => ({
     id_customer: cliente.id_customer,
     firstname: cliente.firstname,
@@ -139,7 +138,7 @@ export async function fetchPorcentajeProductosCliente(idCliente) {
 
   const rawText = await res.text();
 
-  console.log('[DEBUG] Respuesta raw del backend:', rawText); // ← LOG clave aquí
+  //console.log('[DEBUG] Respuesta raw del backend:', rawText); 
 
   if (!rawText) return [];
 
@@ -163,11 +162,11 @@ export async function guardarPorcentajeEspecial({ idProductoCliente, porcentaje 
     const response = await fetch('/module/zonacomerciales/datos', {
       method: 'POST',
       body: formData,
-      credentials: 'include', // si necesitas enviar cookies de sesión
+      credentials: 'include',
     });
 
     if (!response.ok) {
-      const text = await response.text(); // para debug más claro
+      const text = await response.text();
       throw new Error(`Error al guardar el porcentaje: ${response.status} - ${text}`);
     }
 
@@ -208,8 +207,8 @@ export async function deleteCliente(id_customer) {
 export async function deleteProductoEspecial({ idProductClienteId }) {
   const params = new URLSearchParams();
   params.append('id_productocliente', idProductClienteId);
-  params.append('borrarPorcentajeProductoAsignadoAunCliente', 1); // SOLO UNA VEZ
-  console.log(idProductClienteId, 'params:', params.toString());
+  params.append('borrarPorcentajeProductoAsignadoAunCliente', 1);
+  //console.log(idProductClienteId, 'params:', params.toString());
 
 
   const response = await fetch('/module/zonacomerciales/datos', {
@@ -245,7 +244,7 @@ export async function crearProductoEspecial({ idProducto, id_product_attribute, 
   const response = await fetch('/module/zonacomerciales/datos', {
     method: 'POST',
     body: formData,
-    credentials: 'include', // si usas cookies de sesión
+    credentials: 'include',
   });
 
   const text = await response.text();

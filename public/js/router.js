@@ -70,9 +70,9 @@ export async function handleRoute(path) {
     // Obtenemos la info del comercial
     const comerciales = await fetchComerciales();
     const comercial = comerciales.find(c => c.id_customer == id);
-    console.log('id buscado:', id);
-    console.log('comerciales:', comerciales);
-    console.log('comercial encontrado:', comercial);
+    //console.log('id buscado:', id);
+    //console.log('comerciales:', comerciales);
+    //console.log('comercial encontrado:', comercial);
 
 
     if (!comercial) {
@@ -116,7 +116,7 @@ export async function handleRoute(path) {
 
     const clientes = await fetchTodosClientes();
 
-    // Aquí deberías pasar el contenedor donde poner el modal, por ejemplo body o un div modal-root
+
     renderCreate(clientes, handleCreateComercial, async (data) => {
       const { handleCreateComercial } = await import('./api/api.js');
       await handleCreateComercial(data);

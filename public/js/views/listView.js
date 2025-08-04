@@ -1,6 +1,6 @@
 import { navigateTo } from '../router.js';
-import { deleteComercial } from '../api/api.js';  // O la ruta correcta a tu api.js
-import { mostrarMensaje } from '../utils/mensajes.js';  // Asegúrate de que la ruta es correcta
+import { deleteComercial } from '../api/api.js';
+import { mostrarMensaje } from '../utils/mensajes.js';
 
 export function renderList(root, comerciales, onVerMas) {
   root.innerHTML = `
@@ -29,12 +29,11 @@ export function renderList(root, comerciales, onVerMas) {
           <td>
             <button class="btn-ver btn btn-sm btn-info" data-id="${c.id_customer}">Ver más</button>
             <button class="btn-borrar btn btn-sm btn-danger" data-id="${c.id_customer}">Borrar</button>
-            <button class="btn-crear-informe btn btn-sm btn-success" data-id="${c.id_customer}" style="margin-left: 0.5rem;">
+            <button class="btn-crear-informe btn btn-sm btn-success" data-id="${c.id_customer}"
+            onclick="window.location.href= '/module/zonacomerciales/crearInforme';" style="margin-left: 0.5rem;">
               Crear Informe
             </button>
-            <!-- TODO: Añadir listener para btn-crear-informe y función en api.js para crear informe 
-            Que salga un modal, que tenga dos inputs datetime, uno para entrada y otro para salida del informe(Desde-> hasta)
-             + un boton que ponga descargar informe dentro del modal-->
+            <!-- TODO: arreglar la url, correcta-->
           </td>
 
           </tr>
