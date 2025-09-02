@@ -51,8 +51,8 @@ function generarFormularioModal(customerId) {
           Informe Histórico Completo
         </button>
         <div class="d-flex gap-2">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-success">Generar Informe</button>
+        <button type="submit" class="btn btn-success">Generar Informe</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
         </div>
       </div>
     </form>

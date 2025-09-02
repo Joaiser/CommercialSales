@@ -263,7 +263,7 @@ export async function crearProductoEspecial({ idProducto, id_product_attribute, 
 export async function enviarInformeAlBackend(id, fecha_inicio, fecha_fin, esHistoricoCompleto) {
   const formData = new FormData();
   formData.append('crearInformeComercial', 1);
-  formData.append('id_customer', id);
+  formData.append('comercial', id);
 
   if (esHistoricoCompleto) {
     formData.append('historico_completo', 1);
@@ -281,7 +281,39 @@ export async function enviarInformeAlBackend(id, fecha_inicio, fecha_fin, esHist
 
   const text = await response.text();
 
-  // Solo mostramos el mensaje del servidor, sin intentar parsear JSON
-  console.log('Respuesta del servidor:', text);
-  return text;
+  // Intentamos extraer la ruta del CSV del HTML
+  const match = text.match(/<code>([^<]+\.csv)<\/code>/i);
+  if (!match) {
+    console.error('No se pudo encontrar el CSV en la respuesta:', text);
+    throw new Error('No se pudo encontrar el CSV en la respuesta');
+  }
+
+  const csvPath = match[1]; // Ruta absoluta en el servidor
+
+  // Transformamos a ruta relativa para fetch
+  const csvUrl = csvPath.replace('/var/www/vhosts/test3.salamandraluz.net/httpdocs', '');
+
+  /// Descargamos el CSV
+  const csvResponse = await fetch(csvUrl, {
+    method: 'GET',
+    credentials: 'include'
+  });
+
+  if (!csvResponse.ok) {
+    console.error('Error al descargar CSV:', csvResponse.statusText);
+    throw new Error('Error al descargar CSV');
+  }
+
+  const csvText = await csvResponse.text();
+  const blob = new Blob(["\uFEFF" + csvText], { type: 'text/csv;charset=utf-8;' });
+  const urlBlob = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = urlBlob;
+  a.download = `informe_comercial_${id}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(urlBlob);
+
+  console.log('Informe descargado correctamente desde el backend (truco sucio).');
 }
