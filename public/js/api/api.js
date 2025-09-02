@@ -260,4 +260,28 @@ export async function crearProductoEspecial({ idProducto, id_product_attribute, 
   }
 }
 
+export async function enviarInformeAlBackend(id, fecha_inicio, fecha_fin, esHistoricoCompleto) {
+  const formData = new FormData();
+  formData.append('crearInformeComercial', 1);
+  formData.append('id_customer', id);
 
+  if (esHistoricoCompleto) {
+    formData.append('historico_completo', 1);
+  } else {
+    formData.append('fecha_inicio', fecha_inicio);
+    formData.append('fecha_fin', fecha_fin);
+    formData.append('historico_completo', 0);
+  }
+
+  const response = await fetch(`/module/zonacomerciales/informe?comercial=${id}`, {
+    method: 'POST',
+    body: formData,
+    credentials: 'include',
+  });
+
+  const text = await response.text();
+
+  // Solo mostramos el mensaje del servidor, sin intentar parsear JSON
+  console.log('Respuesta del servidor:', text);
+  return text;
+}
