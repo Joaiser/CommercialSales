@@ -1,5 +1,5 @@
-import { fetchTodosClientes, asignarPorcentajeCliente } from "../api/api.js";
-import { mostrarMensaje } from '../utils/mensajes.js';
+import { fetchTodosClientes, asignarPorcentajeCliente } from "../../../api/api.js";
+import { mostrarMensaje } from '../../../utils/mensajes.js';
 
 export async function renderClientesAsignados(idComercial) {
   const wrapper = document.createElement('div');

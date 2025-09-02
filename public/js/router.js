@@ -112,7 +112,7 @@ export async function handleRoute(path) {
     return;
   } else if (path === '/create') {
     const { fetchTodosClientes, handleCreateComercial } = await import('./api/api.js');
-    const { renderCreate } = await import('./views/createCommercialModal.js');
+    const { renderCreate } = await import('./views/modals/createComercialModal/createCommercialModal.js');
 
     const clientes = await fetchTodosClientes();
 
@@ -129,7 +129,7 @@ export async function handleRoute(path) {
   } else if (path.match(/^\/\d+\/asignarPorcentaje$/)) {
     const idComercial = path.split('/')[1];
 
-    const { renderClientesAsignados } = await import('./views/clientesAsignadosModal.js');
+    const { renderClientesAsignados } = await import('./views/modals/clientesAsignadosModal/clientesAsignadosModal.js');
 
     // mostramos el modal
     await renderClientesAsignados(idComercial);

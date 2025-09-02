@@ -1,4 +1,4 @@
-import { showEditPorcentajeModal } from "./modalEditPorcentajeProductos.js";
+import { showEditPorcentajeModal } from "./modals/editPorcentajeProductosModal/modalEditPorcentajeProductos.js";
 import { deleteProductoEspecial, crearProductoEspecial } from '../api/api.js';
 import { mostrarMensaje } from '../utils/mensajes.js';
 

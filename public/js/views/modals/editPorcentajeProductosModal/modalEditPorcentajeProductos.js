@@ -1,4 +1,3 @@
-import { mostrarMensaje } from '../utils/mensajes.js';
 
 export function showEditPorcentajeModal({ idProducto, clienteId, porcentajeActual, onSave, onCancel }) {
   const overlay = document.createElement('div');

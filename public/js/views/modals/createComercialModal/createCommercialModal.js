@@ -1,4 +1,4 @@
-import { navigateTo } from "../router.js";
+import { navigateTo } from "../../../router.js";
 
 export function renderCreate(clientes, onCreate) {
   // Crear un div temporal para insertar el modal
