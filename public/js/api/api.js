@@ -385,38 +385,41 @@ export async function enviarInformeAlBackend(id, fecha_inicio, fecha_fin, esHist
     credentials: 'include',
   });
 
-  const text = await response.text(); // 👈 aquí tenemos HTML con info
+  const text = await response.text();
 
-  // Log informativo para debug
-  console.log("Respuesta del backend:", text);
-
-  // Intentamos extraer la ruta del PDF del HTML que devolvió el backend
-  const match = text.match(/<code>([^<]+\.pdf)<\/code>/i);
+  // Intentamos extraer la ruta del CSV del HTML
+  const match = text.match(/<code>([^<]+\.csv)<\/code>/i);
   if (!match) {
-    console.error("No se encontró la ruta del PDF en la respuesta");
-    throw new Error("No se encontró la ruta del PDF en la respuesta");
+    console.error('No se pudo encontrar el CSV en la respuesta:', text);
+    throw new Error('No se pudo encontrar el CSV en la respuesta');
   }
 
-  const pdfPath = match[1];
-  const pdfUrl = pdfPath.replace('/var/www/vhosts/test3.salamandraluz.net/httpdocs', '');
+  const csvPath = match[1]; // Ruta absoluta en el servidor
 
-  // Ahora sí, descargamos el PDF
-  const pdfResponse = await fetch(pdfUrl, { method: 'GET', credentials: 'include' });
-  if (!pdfResponse.ok) {
-    throw new Error('Error al descargar PDF');
+  // Transformamos a ruta relativa para fetch
+  const csvUrl = csvPath.replace('/var/www/vhosts/test3.salamandraluz.net/httpdocs', '');
+
+  /// Descargamos el CSV
+  const csvResponse = await fetch(csvUrl, {
+    method: 'GET',
+    credentials: 'include'
+  });
+
+  if (!csvResponse.ok) {
+    console.error('Error al descargar CSV:', csvResponse.statusText);
+    throw new Error('Error al descargar CSV');
   }
 
-  const blob = await pdfResponse.blob();
-
-  // Crear enlace temporal para descargar
+  const csvText = await csvResponse.text();
+  const blob = new Blob(["\uFEFF" + csvText], { type: 'text/csv;charset=utf-8;' });
   const urlBlob = window.URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = urlBlob;
-  a.download = `informe_comercial_${id}.pdf`;
+  a.download = `informe_comercial_${id}.csv`;
   document.body.appendChild(a);
   a.click();
   a.remove();
   window.URL.revokeObjectURL(urlBlob);
 
-  console.log('Informe PDF descargado correctamente.');
+  console.log('Informe descargado correctamente desde el backend (truco sucio).');
 }
