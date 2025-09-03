@@ -46,12 +46,12 @@ function generarFormularioModal(customerId) {
         <label class="form-label">Fecha de Fin</label>
         <input type="date" class="form-control" name="fecha_fin" required>
       </div>
-      <div class="d-flex justify-content-between align-items-center">
+      <div class="d-flex justify-content-between align-items-center gap-2">
         <button type="button" class="btn btn-outline-primary" id="btn-historico-${customerId}">
           Informe Histórico Completo
         </button>
         <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-success">Generar Informe</button>
+        <button type="submit" class="btn btn-success">Descargar informe generado</button>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
         </div>
       </div>

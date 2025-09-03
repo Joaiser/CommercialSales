@@ -1,4 +1,4 @@
-import { fetchPorcentajeClientes, deleteCliente } from '../api/api.js';
+import { fetchPorcentajeClientes, deleteCliente, invalidatePorcentajeClientesCache } from '../api/api.js';
 import { mostrarMensaje } from '../utils/mensajes.js';
 
 export async function renderDetail(root, comercial, onBack) {
@@ -115,6 +115,7 @@ export async function renderDetail(root, comercial, onBack) {
         await deleteCliente(idCliente);
         fila.remove();
         mostrarMensaje(`Cliente ${idCliente} borrado correctamente`, 'success');
+        invalidatePorcentajeClientesCache(idCliente);
       } catch (err) {
         mostrarMensaje('Error al borrar el cliente: ' + err.message, 'danger');
       }

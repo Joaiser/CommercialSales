@@ -76,7 +76,7 @@ function setupActionButtons(root) {
   const btnVerVentas = root.querySelector('#btn-ver-ventas');
   if (btnVerVentas) {
     btnVerVentas.addEventListener('click', () => {
-      window.open('https://test2.salamandraluz.net/module/zonacomerciales/comerciales', '_blank');
+      window.open('/module/zonacomerciales/comerciales', '_blank');
     });
   }
 
