@@ -85,18 +85,20 @@ export function renderProductosConPorcentaje(root, productos, onBack, clienteId,
 
         try {
           await deleteProductoEspecial({ idProductClienteId });
-          mostrarMensaje('Producto eliminado correctamente');
+          mostrarMensaje('Producto eliminado correctamente', 'success');
 
-          // Eliminar producto del array local y repintar tabla
-          productos = productos.filter(p => p.id_productocliente !== idProductClienteId);
+          // Eliminar producto del array local usando splice para no reasignar
+          const index = productos.findIndex(p => p.id_productocliente === idProductClienteId);
+          if (index > -1) productos.splice(index, 1);
+
+          // Repintar tabla
           pintarTabla();
 
         } catch (err) {
-          mostrarMensaje('Error al eliminar el producto');
+          mostrarMensaje('Error al eliminar el producto: ' + err.message, 'danger');
         }
       });
     });
-
   }
 
   // Pintamos todo el layout menos la tabla, que la dejamos en un div vacío para pintar y actualizar

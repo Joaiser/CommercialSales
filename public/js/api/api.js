@@ -140,6 +140,7 @@ export async function fetchTodosClientes() {
 // Funcion para invalidar el cache de clientes
 export function invalidateClientesCache() {
   cache.clientes = null;
+  cache.porcentajeClientes = {};
 }
 
 export async function asignarPorcentajeCliente(idCliente, porcentaje) {
@@ -177,10 +178,37 @@ export async function asignarPorcentajeCliente(idCliente, porcentaje) {
     };
   }
 
+  //actualizamos el cache de clientes
+  if (cache.clientes) {
+    const clienteIndex = cache.clientes.findIndex(c => c.id_customer === idCliente);
+    if (clienteIndex !== -1) {
+      cache.clientes[clienteIndex].porcentaje = porcentaje;
+    }
+  }
+
+  //Actualizamos cache de porcentajeClientes por idComercial
+  for (const idComercial in cache.porcentajeClientes) {
+    const clientes = cache.porcentajeClientes[idComercial];
+    if (Array.isArray(clientes)) {
+      const cliIndex = clientes.findIndex(c => c.id_customer === idCliente);
+      if (cliIndex !== -1) {
+        clientes[cliIndex].porcentaje = porcentaje;
+      }
+    } else if (clientes?.id_customer === idCliente) {
+      cache.porcentajeClientes[idComercial].porcentaje = porcentaje;
+    }
+  }
+
+
   return data;
 }
 
 export async function fetchPorcentajeProductosCliente(idCliente) {
+  //si ya tenemos cache, lo devolvemos
+  if (cache.productosPorCliente[idCliente]) {
+    return cache.productosPorCliente[idCliente];
+  }
+
   const res = await fetch(`/module/zonacomerciales/datos?sacarPorcentajeProductosClientes=${idCliente}`);
 
   const rawText = await res.text();
@@ -189,17 +217,30 @@ export async function fetchPorcentajeProductosCliente(idCliente) {
 
   if (!rawText) return [];
 
+  let data;
+
   try {
-    const data = JSON.parse(rawText);
-    return data;
+    data = JSON.parse(rawText);
   } catch (error) {
-    console.error('[ERROR] Al parsear JSON:', error);
+    // console.error('[ERROR] Al parsear JSON:', error);
     throw new Error('Respuesta inválida');
+  }
+  cache.productosPorCliente[idCliente] = data; // Guardamos en cache
+
+  return data;
+}
+
+// Función para invalidar cache de productos de un cliente específico o todos
+export function invalidateProductosPorClienteCache(idCliente = null) {
+  if (idCliente) {
+    delete cache.productosPorCliente[idCliente];
+  } else {
+    cache.productosPorCliente = {};
   }
 }
 
 
-export async function guardarPorcentajeEspecial({ idProductoCliente, porcentaje }) {
+export async function guardarPorcentajeEspecial({ idProductoCliente, porcentaje, clienteId = null }) {
   try {
     const formData = new FormData();
     formData.append('modificarPorcentajeProductoAsignadoAunCliente', '1');
@@ -218,16 +259,23 @@ export async function guardarPorcentajeEspecial({ idProductoCliente, porcentaje 
     }
 
     const contentType = response.headers.get('content-type');
+    let data;
     if (contentType && contentType.includes('application/json')) {
-      return await response.json();
+      data = await response.json();
     } else {
-      return await response.text();
+      data = await response.text();
     }
+
+    // Invalidamos cache solo si nos pasaron clienteId
+    if (clienteId) invalidateProductosPorClienteCache(clienteId);
+
+    return data;
   } catch (error) {
     console.error('Error en guardarPorcentajeEspecial:', error);
     throw error;
   }
 }
+
 
 
 
@@ -246,17 +294,19 @@ export async function deleteCliente(id_customer) {
     throw new Error('Error al borrar en el backend');
   }
 
+  //limpiamos cache
+  invalidateClientesCache();
+  invalidatePorcentajeClientesCache(id_customer);
+
   return text;
 }
 
 
 
-export async function deleteProductoEspecial({ idProductClienteId }) {
+export async function deleteProductoEspecial({ idProductClienteId, clienteId }) {
   const params = new URLSearchParams();
   params.append('id_productocliente', idProductClienteId);
   params.append('borrarPorcentajeProductoAsignadoAunCliente', 1);
-  //console.log(idProductClienteId, 'params:', params.toString());
-
 
   const response = await fetch('/module/zonacomerciales/datos', {
     method: 'POST',
@@ -265,16 +315,22 @@ export async function deleteProductoEspecial({ idProductClienteId }) {
   });
 
   const text = await response.text();
+
+  // Si no es OK, lanzar error
   if (!response.ok) {
     throw new Error(`Error eliminando producto: ${text}`);
   }
 
+  // Intentamos parsear JSON, pero si no es JSON, devolvemos el texto
   try {
     const json = JSON.parse(text);
-    if (!json.success) throw new Error('No se pudo eliminar');
+    if (!json.success) throw new Error(json.message || 'No se pudo eliminar');
+    if (clienteId) invalidateProductosPorClienteCache(clienteId);
     return json;
   } catch {
-    throw new Error('Respuesta no válida del servidor');
+    // Solo log para debug, devolvemos éxito si llegamos aquí y la respuesta no es JSON
+    console.warn('Respuesta del servidor no es JSON, se devuelve texto:', text);
+    return { success: true, message: text };
   }
 }
 
@@ -301,6 +357,7 @@ export async function crearProductoEspecial({ idProducto, id_product_attribute, 
     if (!response.ok || !data.success) {
       throw new Error(data.message || `Error HTTP ${response.status}`);
     }
+    invalidateProductosPorClienteCache(id_customer);
     return data;
   } catch {
     throw new Error(`Respuesta no válida del servidor: ${text}`);

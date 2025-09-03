@@ -84,8 +84,10 @@ export async function handleRoute(path) {
     const { fetchPorcentajeProductosCliente, guardarPorcentajeEspecial } = await import('./api/api.js');
     const { renderProductosConPorcentaje } = await import('./views/productListView.js');
 
-    // Cache por cliente
+    // Inicializamos cache global si no existe
     if (!window._cacheProductos) window._cacheProductos = {};
+
+    // Solo llamamos al backend si no hay cache
     if (!window._cacheProductos[clienteId]) {
       window._cacheProductos[clienteId] = await fetchPorcentajeProductosCliente(clienteId);
     }
@@ -93,13 +95,19 @@ export async function handleRoute(path) {
 
     const onSave = async (idProducto, nuevoPorcentaje) => {
       try {
-        await guardarPorcentajeEspecial({ idProductoCliente: idProducto, porcentaje: nuevoPorcentaje });
-        mostrarMensaje('Porcentaje guardado correctamente.');
+        // Pasamos clienteId para que la función invalide cache correctamente
+        await guardarPorcentajeEspecial({
+          idProductoCliente: idProducto,
+          porcentaje: nuevoPorcentaje,
+          clienteId
+        });
 
-        // Limpiar cache si quieres forzar refresco
-        // window._cacheProductos[clienteId] = null;
-      } catch {
-        mostrarMensaje('Hubo un error al guardar el porcentaje.', 'danger');
+        // Actualizamos cache local inmediatamente
+        window._cacheProductos[clienteId] = await fetchPorcentajeProductosCliente(clienteId);
+
+        mostrarMensaje('Porcentaje guardado correctamente.');
+      } catch (err) {
+        mostrarMensaje('Hubo un error al guardar el porcentaje: ' + err.message, 'danger');
       }
     };
 
@@ -107,7 +115,6 @@ export async function handleRoute(path) {
     isNavigating = false;
     return;
   }
-
   // ==========================
   // Crear comercial: /create
   // ==========================
