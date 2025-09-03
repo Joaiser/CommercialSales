@@ -193,6 +193,8 @@ export async function asignarPorcentajeCliente(idCliente, porcentaje) {
       const cliIndex = clientes.findIndex(c => c.id_customer === idCliente);
       if (cliIndex !== -1) {
         clientes[cliIndex].porcentaje = porcentaje;
+      } else {
+        clientes.push({ id_customer: idCliente, porcentaje });
       }
     } else if (clientes?.id_customer === idCliente) {
       cache.porcentajeClientes[idComercial].porcentaje = porcentaje;
