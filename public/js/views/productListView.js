@@ -1,10 +1,9 @@
 import { showEditPorcentajeModal } from "./modals/editPorcentajeProductosModal/modalEditPorcentajeProductos.js";
-import { deleteProductoEspecial, crearProductoEspecial } from '../api/api.js';
+import { deleteProductoEspecial, crearProductoEspecial, fetchProductos } from '../api/api.js';
 import { mostrarMensaje } from '../utils/mensajes.js';
 
 export function renderProductosConPorcentaje(root, productos, onBack, clienteId, onSave) {
 
-  // Función para pintar solo la tabla dentro del contenedor
   function pintarTabla() {
     const contenedorTabla = root.querySelector('#contenedor-tabla-productos');
     if (!contenedorTabla) return;
@@ -48,18 +47,14 @@ export function renderProductosConPorcentaje(root, productos, onBack, clienteId,
         </tbody>
       </table>
     `;
-
-    // Reasignar eventos porque el DOM cambió
     asignarEventosBotones();
   }
 
-  // Función para asignar eventos a botones modificar y eliminar (porque vuelves a pintar tabla)
   function asignarEventosBotones() {
     root.querySelectorAll('.btn-modificar').forEach(btn => {
       btn.addEventListener('click', () => {
         const idProductCliente = Number(btn.dataset.idProductocliente);
         const producto = productos.find(p => p.id_productocliente === idProductCliente);
-
         if (!producto) return;
 
         showEditPorcentajeModal({
@@ -68,7 +63,6 @@ export function renderProductosConPorcentaje(root, productos, onBack, clienteId,
           porcentajeActual: producto.porcentaje ?? 0,
           onSave: async (nuevoPorcentaje) => {
             await onSave(producto.id_productocliente, nuevoPorcentaje);
-            // Actualizar en el array local
             producto.porcentaje = nuevoPorcentaje;
             pintarTabla();
           },
@@ -80,20 +74,15 @@ export function renderProductosConPorcentaje(root, productos, onBack, clienteId,
     root.querySelectorAll('.btn-eliminar-producto').forEach(btn => {
       btn.addEventListener('click', async () => {
         const idProductClienteId = Number(btn.dataset.idProductocliente);
-
         if (!confirm(`¿Seguro que quieres eliminar este producto especial?`)) return;
 
         try {
           await deleteProductoEspecial({ idProductClienteId });
           mostrarMensaje('Producto eliminado correctamente', 'success');
 
-          // Eliminar producto del array local usando splice para no reasignar
           const index = productos.findIndex(p => p.id_productocliente === idProductClienteId);
           if (index > -1) productos.splice(index, 1);
-
-          // Repintar tabla
           pintarTabla();
-
         } catch (err) {
           mostrarMensaje('Error al eliminar el producto: ' + err.message, 'danger');
         }
@@ -101,7 +90,7 @@ export function renderProductosConPorcentaje(root, productos, onBack, clienteId,
     });
   }
 
-  // Pintamos todo el layout menos la tabla, que la dejamos en un div vacío para pintar y actualizar
+  // Layout base
   root.innerHTML = `
     <div style="margin-bottom: 1rem;">
       <button id="btn-back" style="background-color: #6c757d; border: none; color: white; padding: 0.5rem 1rem; font-size: 1rem; border-radius: 0.375rem; cursor: pointer; transition: background-color 0.3s ease;"
@@ -120,10 +109,10 @@ export function renderProductosConPorcentaje(root, productos, onBack, clienteId,
     </div>
 
     <div id="modal-crear-producto" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); justify-content: center; align-items: center;">
-      <div style="background: #fff; padding: 1.5rem; border-radius: 0.375rem; width: 320px; max-width: 90%;">
+      <div style="background: #fff; padding: 1.5rem; border-radius: 0.375rem; width: 360px; max-width: 90%;">
         <h4>Crear Producto Especial</h4>
-        <label>ID Producto:<br/><input type="number" id="input-id-producto" style="width: 100%; margin-bottom: 0.75rem;" /></label>
-        <label>ID Atributo:<br/><input type="number" id="input-id-atributo" style="width: 100%; margin-bottom: 0.75rem;" /></label>
+        <input type="text" id="input-buscar-producto" placeholder="Buscar producto..." style="width:100%; padding:0.4rem; margin-bottom:0.5rem;" />
+        <div id="dropdown-productos" style="position: relative; margin-bottom: 0.75rem;"></div>
         <label>Porcentaje:<br/><input type="number" step="0.01" id="input-porcentaje" style="width: 100%; margin-bottom: 0.75rem;" /></label>
         <button id="btn-guardar-producto" style="background: #198754; color: #fff; padding: 0.5rem 1rem; border: none; border-radius: 0.375rem; cursor: pointer; margin-right: 0.5rem;">Guardar</button>
         <button id="btn-cancelar-producto" style="background: #dc3545; color: #fff; padding: 0.5rem 1rem; border: none; border-radius: 0.375rem; cursor: pointer;">Cancelar</button>
@@ -131,47 +120,147 @@ export function renderProductosConPorcentaje(root, productos, onBack, clienteId,
     </div>
   `;
 
-  // Botones generales
   root.querySelector('#btn-back')?.addEventListener('click', onBack);
-  root.querySelector('#btn-crear-producto').addEventListener('click', () => {
-    root.querySelector('#modal-crear-producto').style.display = 'flex';
+
+  root.querySelector('#btn-crear-producto').addEventListener('click', async () => {
+    const modal = root.querySelector('#modal-crear-producto');
+    modal.style.display = 'flex';
+
+    const dropdownContainer = root.querySelector('#dropdown-productos');
+    const inputBuscar = root.querySelector('#input-buscar-producto');
+    inputBuscar.value = '';
+
+    const listaDropdown = document.createElement('div');
+    listaDropdown.style.position = 'absolute';
+    listaDropdown.style.top = '100%';
+    listaDropdown.style.left = '0';
+    listaDropdown.style.right = '0';
+    listaDropdown.style.maxHeight = '200px';
+    listaDropdown.style.overflowY = 'auto';
+    listaDropdown.style.background = '#fff';
+    listaDropdown.style.border = '1px solid #ccc';
+    listaDropdown.style.borderRadius = '0.25rem';
+    listaDropdown.style.zIndex = '10';
+    listaDropdown.style.display = 'none';
+    dropdownContainer.appendChild(listaDropdown);
+
+    try {
+      const productosApi = await fetchProductos();
+      const productosFull = productosApi.map(p => ({
+        id_product: p.id_product,
+        id_product_attribute: p.id_product_attribute ?? '',
+        name: p.name
+      }));
+
+      let seleccionado = null;
+      let indiceActivo = -1;
+
+      function renderDropdown(lista) {
+        listaDropdown.innerHTML = lista.length
+          ? lista.map((p) => `<div class="item-dropdown" style="padding:0.5rem; cursor:pointer;">${p.id_product} – ${p.name}${p.id_product_attribute ? ` (Attr: ${p.id_product_attribute})` : ''}</div>`).join('')
+          : '<div style="padding:0.5rem;">No hay productos</div>';
+
+        const items = listaDropdown.querySelectorAll('.item-dropdown');
+        items.forEach((item, index) => {
+          item.addEventListener('click', () => {
+            seleccionado = lista[index];
+            inputBuscar.value = `${seleccionado.id_product} – ${seleccionado.name}${seleccionado.id_product_attribute ? ` (Attr: ${seleccionado.id_product_attribute})` : ''}`;
+            listaDropdown.style.display = 'none';
+          });
+        });
+      }
+
+      function actualizarIndiceActivo(nuevoIndice) {
+        const items = listaDropdown.querySelectorAll('.item-dropdown');
+        items.forEach((item, i) => {
+          item.style.background = i === nuevoIndice ? '#0d6efd' : '#fff';
+          item.style.color = i === nuevoIndice ? '#fff' : '#000';
+        });
+        indiceActivo = nuevoIndice;
+      }
+
+      inputBuscar.addEventListener('focus', () => {
+        renderDropdown(productosFull);
+        listaDropdown.style.display = 'block';
+        indiceActivo = -1;
+      });
+
+      inputBuscar.addEventListener('input', () => {
+        const query = inputBuscar.value.toLowerCase();
+        const filtrados = productosFull.filter(p => `${p.id_product} ${p.name} ${p.id_product_attribute}`.toLowerCase().includes(query));
+        renderDropdown(filtrados);
+        listaDropdown.style.display = 'block';
+        indiceActivo = -1;
+      });
+
+      inputBuscar.addEventListener('keydown', (e) => {
+        const items = listaDropdown.querySelectorAll('.item-dropdown');
+        if (!items.length) return;
+
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          let nuevoIndice = indiceActivo + 1 >= items.length ? 0 : indiceActivo + 1;
+          actualizarIndiceActivo(nuevoIndice);
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          let nuevoIndice = indiceActivo - 1 < 0 ? items.length - 1 : indiceActivo - 1;
+          actualizarIndiceActivo(nuevoIndice);
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          if (indiceActivo >= 0 && indiceActivo < items.length) {
+            seleccionado = productosFull[indiceActivo];
+            inputBuscar.value = `${seleccionado.id_product} – ${seleccionado.name}${seleccionado.id_product_attribute ? ` (Attr: ${seleccionado.id_product_attribute})` : ''}`;
+            listaDropdown.style.display = 'none';
+          }
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!dropdownContainer.contains(e.target)) listaDropdown.style.display = 'none';
+      });
+
+      root.querySelector('#btn-guardar-producto').addEventListener('click', async () => {
+        if (!seleccionado) {
+          mostrarMensaje('Debes seleccionar un producto válido');
+          return;
+        }
+        const porcentaje = parseFloat(root.querySelector('#input-porcentaje').value);
+        if (isNaN(porcentaje)) {
+          mostrarMensaje('Debes introducir un porcentaje válido');
+          return;
+        }
+
+        try {
+          await crearProductoEspecial({
+            idProducto: Number(seleccionado.id_product),
+            id_product_attribute: seleccionado.id_product_attribute || null,
+            id_customer: clienteId,
+            porcentaje
+          });
+          mostrarMensaje('Producto creado correctamente');
+
+          productos.push({
+            id_product: Number(seleccionado.id_product),
+            id_product_attribute: seleccionado.id_product_attribute || null,
+            porcentaje
+          });
+
+          modal.style.display = 'none';
+          pintarTabla();
+        } catch (err) {
+          mostrarMensaje('Error al crear producto: ' + err.message);
+        }
+      });
+
+    } catch (err) {
+      console.error(err);
+      listaDropdown.innerHTML = '<div style="padding:0.5rem;">Error al cargar productos</div>';
+    }
   });
+
   root.querySelector('#btn-cancelar-producto').addEventListener('click', () => {
     root.querySelector('#modal-crear-producto').style.display = 'none';
   });
-  root.querySelector('#btn-guardar-producto').addEventListener('click', async () => {
-    const id_product = Number(root.querySelector('#input-id-producto').value);
-    const id_product_attribute = Number(root.querySelector('#input-id-atributo').value);
-    const porcentaje = parseFloat(root.querySelector('#input-porcentaje').value);
 
-    if (!id_product || isNaN(porcentaje)) {
-      mostrarMensaje('Debes ingresar un ID de producto válido y un porcentaje.');
-      return;
-    }
-
-    try {
-      await crearProductoEspecial({
-        idProducto: id_product,
-        id_product_attribute,
-        id_customer: clienteId,
-        porcentaje
-      });
-      mostrarMensaje('Producto creado correctamente');
-
-      // Añadir el producto nuevo al array local y repintar tabla
-      productos.push({
-        id_product,
-        id_product_attribute,
-        porcentaje
-      });
-      root.querySelector('#modal-crear-producto').style.display = 'none';
-      pintarTabla();
-
-    } catch (error) {
-      mostrarMensaje('Error al crear producto especial: ' + error.message);
-    }
-  });
-
-  // Pintar tabla la primera vez
   pintarTabla();
 }

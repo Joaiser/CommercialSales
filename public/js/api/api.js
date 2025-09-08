@@ -426,10 +426,17 @@ export async function enviarInformeAlBackend(id, fecha_inicio, fecha_fin, esHist
 
 export async function fetchProductos() {
   try {
-    const res = await fetch('module/zonacomercial/obtenerJsonProductos=1'); // TODO: cambia la URL real
+    const formData = new FormData();
+    formData.append('obtenerJsonProductos', '1');
+
+    const res = await fetch('/module/zonacomerciales/datos', {
+      method: 'POST',
+      body: formData
+    });
     if (!res.ok) throw new Error('Error al cargar productos');
-    return await res.json();
-    // Devuelve algo tipo: [{ id: 12, nombre: "Lámpara", combinacion: "Rojo" }, ...]
+    const data = await res.json();
+    console.log('Productos cargados:', data);
+    return data;
   } catch (err) {
     console.error(err);
     return [];
