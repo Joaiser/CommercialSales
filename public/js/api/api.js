@@ -423,3 +423,15 @@ export async function enviarInformeAlBackend(id, fecha_inicio, fecha_fin, esHist
 
   console.log('Informe descargado correctamente desde el backend (truco sucio).');
 }
+
+export async function fetchProductos() {
+  try {
+    const res = await fetch('module/zonacomercial/obtenerJsonProductos=1'); // TODO: cambia la URL real
+    if (!res.ok) throw new Error('Error al cargar productos');
+    return await res.json();
+    // Devuelve algo tipo: [{ id: 12, nombre: "Lámpara", combinacion: "Rojo" }, ...]
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
+}
