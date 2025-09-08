@@ -109,9 +109,9 @@ export function initCrearProductoModal({ root, clienteId, onProductoCreado }) {
   });
 
   modal.querySelector('#btn-guardar-producto').addEventListener('click', async () => {
-    if (!seleccionado) return mostrarMensaje('Debes seleccionar un producto válido');
+    if (!seleccionado) return mostrarMensaje('Debes seleccionar un producto válido', 'warning');
     const porcentaje = parseFloat(modal.querySelector('#input-porcentaje').value);
-    if (isNaN(porcentaje)) return mostrarMensaje('Debes introducir un porcentaje válido');
+    if (isNaN(porcentaje)) return mostrarMensaje('Debes introducir un porcentaje válido', 'warning');
 
     try {
       await crearProductoEspecial({
@@ -121,7 +121,7 @@ export function initCrearProductoModal({ root, clienteId, onProductoCreado }) {
         porcentaje
       });
 
-      mostrarMensaje('Producto creado correctamente');
+      mostrarMensaje('Producto creado correctamente', 'success');
       modal.style.display = 'none';
 
       // Guardamos los datos antes de resetear seleccionado
@@ -140,7 +140,7 @@ export function initCrearProductoModal({ root, clienteId, onProductoCreado }) {
       onProductoCreado(productoCreado);
 
     } catch (err) {
-      mostrarMensaje('Error al crear producto: ' + err.message);
+      mostrarMensaje('Error al crear producto: ' + err.message, 'danger');
     }
   });
 

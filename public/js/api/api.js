@@ -421,7 +421,7 @@ export async function enviarInformeAlBackend(id, fecha_inicio, fecha_fin, esHist
   a.remove();
   window.URL.revokeObjectURL(urlBlob);
 
-  console.log('Informe descargado correctamente desde el backend (truco sucio).');
+  // console.log('Informe descargado correctamente desde el backend (truco sucio).');
 }
 
 export async function fetchProductos() {
@@ -435,7 +435,7 @@ export async function fetchProductos() {
     });
     if (!res.ok) throw new Error('Error al cargar productos');
     const data = await res.json();
-    console.log('Productos cargados:', data);
+    // console.log('Productos cargados:', data);
     return data;
   } catch (err) {
     console.error(err);

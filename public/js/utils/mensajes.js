@@ -11,7 +11,7 @@ export function mostrarMensaje(texto, tipo = 'success') {
   mensajeEstado.innerHTML = `
     <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
       ${texto}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+      <!--<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>-->
     </div>
   `;
   setTimeout(() => {
