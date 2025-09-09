@@ -105,7 +105,7 @@ export async function handleRoute(path) {
         // Actualizamos cache local inmediatamente
         window._cacheProductos[clienteId] = await fetchPorcentajeProductosCliente(clienteId);
 
-        mostrarMensaje('Porcentaje guardado correctamente.');
+        mostrarMensaje('Porcentaje guardado correctamente.', 'success');
       } catch (err) {
         mostrarMensaje('Hubo un error al guardar el porcentaje: ' + err.message, 'danger');
       }

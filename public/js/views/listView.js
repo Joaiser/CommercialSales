@@ -44,7 +44,7 @@ function generateHTML(comerciales) {
 function generateTableRow(c) {
   return `
     <tr>
-      <td>${c.id_customer}</td>
+      <td>${c.firstname} ${c.lastname}</td>
       <td>${c.porcentaje_general}%</td>
       <td>
         <button class="btn-ver btn btn-sm btn-info" data-id="${c.id_customer}">Ver más</button>
@@ -57,6 +57,7 @@ function generateTableRow(c) {
     </tr>
   `;
 }
+
 
 function setupEventListeners(root, comerciales, onVerMas) {
   setupViewMoreListeners(root, onVerMas);

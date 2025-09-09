@@ -32,8 +32,8 @@ export function renderProductosConPorcentaje(root, productos, onBack, clienteId,
         <tbody>
           ${productos.map(p => `
             <tr style="border-bottom: 1px solid #dee2e6;">
-              <td style="padding: 0.75rem; border: 1px solid #dee2e6;">${p.id_product}</td>
-              <td style="padding: 0.75rem; border: 1px solid #dee2e6;">${p.id_product_attribute ?? ''}</td>
+              <td style="padding: 0.75rem; border: 1px solid #dee2e6;">${p.nombre_producto}</td>
+              <td style="padding: 0.75rem; border: 1px solid #dee2e6;">${p.referencia_combinacion ?? ''}</td>
               <td style="padding: 0.75rem; border: 1px solid #dee2e6;">${p.porcentaje}%</td>
               <td style="padding: 0.75rem; border: 1px solid #dee2e6;">
                 <button class="btn-modificar" data-id-productocliente="${p.id_productocliente}" style="padding: 0.3rem 0.6rem; background-color: #0d6efd; color: white; border: none; border-radius: 0.25rem; cursor: pointer; font-size: 0.875rem;">
@@ -67,7 +67,7 @@ export function renderProductosConPorcentaje(root, productos, onBack, clienteId,
             producto.porcentaje = nuevoPorcentaje;
             pintarTabla();
           },
-          onCancel: () => mostrarMensaje('Edición cancelada por el usuario')
+          onCancel: () => mostrarMensaje('Edición cancelada por el usuario', 'info')
         });
       });
     });

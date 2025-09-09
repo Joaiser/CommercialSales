@@ -67,7 +67,16 @@ export function initCrearProductoModal({ root, clienteId, onProductoCreado }) {
       item.style.color = i === nuevoIndice ? '#fff' : '#000';
     });
     indiceActivo = nuevoIndice;
+
+    // Scroll automático para que el item seleccionado siempre sea visible
+    if (indiceActivo >= 0 && indiceActivo < items.length) {
+      items[indiceActivo].scrollIntoView({
+        block: 'nearest',
+        behavior: 'smooth'
+      });
+    }
   }
+
 
   inputBuscar.addEventListener('focus', async () => {
     if (!productosFull.length) await cargarProductos();

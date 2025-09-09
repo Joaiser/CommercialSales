@@ -6,23 +6,20 @@ export async function renderDetail(root, comercial, onBack) {
 
   let tablaHTML = '';
   const renderFila = (cli) => `
-  <tr data-id-customer="${cli.id_customer}" ">
-    <td>${cli.id_customer}</td>
-    <td>${cli.porcentaje}%</td>
-    <td>
-      <button 
-        class="btn btn-sm btn-info ver-productos" 
-        data-id="${cli.id_customer}">
-        Ver productos con porcentaje
-      </button>
-      <button 
-        class="btn btn-sm btn-danger borrar-cliente"
-        data-id="${cli.id_customer}">
-        Borrar
-      </button>
-    </td>
-  </tr>
+<tr data-id-customer="${cli.id_customer}">
+  <td>${cli.firstname} ${cli.lastname}</td>
+  <td>${cli.porcentaje}%</td>
+  <td>
+    <button class="btn btn-sm btn-info ver-productos" data-id="${cli.id_customer}">
+      Ver productos con porcentaje
+    </button>
+    <button class="btn btn-sm btn-danger borrar-cliente" data-id="${cli.id_customer}">
+      Borrar
+    </button>
+  </td>
+</tr>
 `;
+
 
   if (Array.isArray(datosPorcentaje)) {
     tablaHTML = `

@@ -98,7 +98,7 @@ async function handleFormSubmit(e, modal, customerId) {
       formData.get('fecha_fin'),
       false
     );
-    mostrarMensaje('Informe generado correctamente');
+    mostrarMensaje('Informe generado correctamente', 'success');
     modal.hide();
   } catch (error) {
     mostrarMensaje('Error al generar el informe', 'danger');
