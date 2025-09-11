@@ -90,14 +90,11 @@ async function handleHistoricalReport(modal, customerId) {
 async function handleFormSubmit(e, modal, customerId) {
   e.preventDefault();
   const formData = new FormData(e.target);
+  const fecha_inicio = formData.get('fecha_inicio');
+  const fecha_fin = formData.get('fecha_fin');
 
   try {
-    await enviarInformeAlBackend(
-      customerId,
-      formData.get('fecha_inicio'),
-      formData.get('fecha_fin'),
-      false
-    );
+    await enviarInformeAlBackend(customerId, fecha_inicio, fecha_fin, false);
     mostrarMensaje('Informe generado correctamente', 'success');
     modal.hide();
   } catch (error) {
@@ -105,7 +102,6 @@ async function handleFormSubmit(e, modal, customerId) {
     console.error(error);
   }
 }
-
 function cleanupModal(modal, modalEl) {
   modal.dispose();
   document.body.removeChild(modalEl);

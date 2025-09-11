@@ -12,7 +12,7 @@ export async function fetchComerciales() {
   // Guardamos en cache centralizado
   cache.comerciales = data;
 
-  // console.log('[API] Comerciales fetched:', data);
+  console.log('[API] Comerciales fetched:', data);
 
 
   return data;
@@ -370,24 +370,23 @@ export async function crearProductoEspecial({ idProducto, id_product_attribute, 
 }
 
 export async function enviarInformeAlBackend(id, fecha_inicio, fecha_fin, esHistoricoCompleto) {
-  const formData = new FormData();
-  formData.append('crearInformeComercial', 1);
-  formData.append('comercial', id);
+  const params = new URLSearchParams();
+  params.append('comercial', id);
 
   if (esHistoricoCompleto) {
-    formData.append('historico_completo', 1);
+    params.append('historico_completo', 1);
   } else {
-    formData.append('fecha_inicio', fecha_inicio);
-    formData.append('fecha_fin', fecha_fin);
-    formData.append('historico_completo', 0);
+    params.append('fecha_inicio', fecha_inicio);
+    params.append('fecha_fin', fecha_fin);
+    params.append('historico_completo', 0);
   }
 
   // 🔄 Lanzamos la petición al backend para que genere el informe
-  const response = await fetch(`/module/zonacomerciales/informe?comercial=${id}`, {
-    method: 'POST',
-    body: formData,
+  const response = await fetch(`/module/zonacomerciales/informe?${params.toString()}`, {
+    method: 'GET',
     credentials: 'include',
   });
+
 
   if (!response.ok) {
     console.error('Error al generar informe:', response.statusText);
