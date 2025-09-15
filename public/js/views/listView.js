@@ -110,7 +110,10 @@ async function handleDeleteComercial(btn) {
 function setupCreateReportListeners(root) {
   root.addEventListener('click', (e) => {
     if (e.target.classList.contains('btn-crear-informe')) {
-      abrirInformeModal(e.target.dataset.id);
+      const ruta = abrirInformeModal(e.target.dataset.id);
+      // Navegamos a la ruta para que el router cree y muestre el modal
+      navigateTo(ruta);
     }
   });
 }
+

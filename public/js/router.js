@@ -28,8 +28,18 @@ export function navigateTo(path) {
 
 let isNavigating = false;
 
+function cleanupAllModals() {
+  document.querySelectorAll('.modal, .modal.fade, .custom-overlay').forEach(modalEl => {
+    const instance = bootstrap.Modal.getInstance(modalEl);
+    if (instance) instance.hide();
+    modalEl.remove();
+  });
+}
+
+
 // Función principal que carga y renderiza la vista adecuada según la ruta
 export async function handleRoute(path) {
+  cleanupAllModals();
   const root = document.querySelector('#sales-root');
 
   // Ignoramos rutas inválidas
@@ -149,7 +159,38 @@ export async function handleRoute(path) {
     isNavigating = false;
     return;
   }
+  if (path.match(/^\/informe\/\d+$/)) {
+    const customerId = path.split('/').pop();
+    const { crearModalInforme } = await import('../js/views/modals/listViewModals/listViewModals.js');
 
+    // Limpieza previa
+    const existing = document.getElementById(`crearInformeModal-${customerId}`);
+    if (existing) {
+      const instance = bootstrap.Modal.getInstance(existing);
+      if (instance) instance.hide();
+      existing.remove();
+    }
+
+    const modalEl = crearModalInforme(customerId);
+    document.body.appendChild(modalEl);
+
+    const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+
+    // Cuando se cierre el modal, volvemos a la lista
+    modalEl.addEventListener('hidden.bs.modal', () => {
+      modalInstance.dispose();
+      if (document.body.contains(modalEl)) document.body.removeChild(modalEl);
+
+      // Solo navegamos si seguimos en la ruta /informe/:id
+      if (window.location.hash.slice(1) === `/informe/${customerId}`) {
+        navigateTo('/');
+      }
+    });
+
+    modalInstance.show();
+    isNavigating = false;
+    return;
+  }
   // Página no encontrada
   if (!isNavigating) root.innerHTML = '<p>Página no encontrada</p>';
 }

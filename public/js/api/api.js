@@ -393,23 +393,34 @@ export async function enviarInformeAlBackend(id, fecha_inicio, fecha_fin, esHist
     throw new Error('Error al generar informe en backend');
   }
 
-  // 📥 Descargar el PDF directamente desde la ruta fija
-  const pdfUrl = '/modules/zonacomerciales/informe.pdf';
-  const pdfResponse = await fetch(pdfUrl, {
-    method: 'GET',
-    credentials: 'include',
-  });
-
-  if (!pdfResponse.ok) {
-    console.error('Error al descargar PDF:', pdfResponse.statusText);
-    throw new Error('Error al descargar PDF');
+  if (!response.ok) {
+    let msg;
+    try {
+      const err = await response.json();
+      msg = err.error || response.statusText;
+    } catch (e) {
+      msg = response.statusText;
+    }
+    console.error('Error al generar informe:', msg);
+    throw new Error('Error al generar informe en backend');
   }
 
-  const blob = await pdfResponse.blob();
+  const blob = await response.blob();
+
   const urlBlob = window.URL.createObjectURL(blob);
+
+  //Intentamos sacar el nombre del archivo del header
+  const disposition = response.headers.get('Content-Disposition');
+  let filename = 'informe.pdf'; // fallback
+  if (disposition && disposition.includes('filename=')) {
+    filename = disposition
+      .split('filename=')[1]
+      .replace(/"/g, '')
+      .trim();
+  }
   const a = document.createElement('a');
   a.href = urlBlob;
-  a.download = `informe_comercial_${id}.pdf`;
+  a.download = filename;
   document.body.appendChild(a);
   a.click();
   a.remove();
